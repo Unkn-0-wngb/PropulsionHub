@@ -165,7 +165,7 @@ function drawActivityChart(activityByDate, beginDate, endDate, $element, resize)
                 str += "</table>";
                 $(".morris-hover").html(str);
             },
-            barColors: ['#e8376a'],
+            barColors: ['#f7931e'],
             hideHover: 'auto',
             gridTextFamily: "Inter",
             gridTextColor: "#999"

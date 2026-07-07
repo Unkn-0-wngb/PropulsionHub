@@ -1,5 +1,10 @@
 /* UnknBoards branding layer — loaded after style.css, overrides accent
-   colors and typography without touching the base layout rules. */
+   colors and typography without touching the base layout rules.
+
+   Palette: Portal's own portal-gun duotone — orange (entry portal) as the
+   primary brand accent, blue (exit portal) as a secondary accent used for
+   "you"/personal highlighting, so the two colors carry the same meaning
+   they do in the game rather than being picked arbitrarily. */
 
 @font-face {
     font-family: 'Inter';
@@ -41,43 +46,34 @@ html[class="dark"], html[class="dark"] body {
 }
 html[class="dark"] #header {
     background: #0a0a0c;
-    border-bottom: 1px solid rgba(232,55,106,0.25);
+    border-bottom: 1px solid rgba(247,147,30,0.3);
 }
 
-/* Brand accent: swap the site's blue accent for the brand pink/red,
-   matching laveryjonez.uk. Same selectors as style.css, new color. */
+/* Portal orange - primary accent (titles, dividers, banners, borders) */
 #changelog #changelogActivity .loading, #profile #changelogactivity .loading {
-    color: #e8376a;
+    color: #f7931e;
 }
 #seper,
 html[class="dark"] #profile .userinformation .general-wrapper .profileBannerButton:hover,
 #profile .uploadInfo, #chamber .not-public-chambers, #announcement,
 html[class="dark"] #profile .button:hover,
 html[class="dark"] #editProfile .button:hover {
-    background: #e8376a;
+    background: #f7931e;
 }
 #leastportals .chamber.leastportals .chamberimage,
 #chambers .chamberimage, #leastportals .chamberimage {
-    border-color: #e8376a;
+    border-color: #f7931e;
 }
 #about .largeTitle,
 #chambers .chapternumber, #editProfile .title, #about .title, #chambers .chaptername, #leastportals .chaptername, h1, h2,
 #about .title,
 #about .subtitle,
 #chamber .chamberview {
-    color: #c4284f;
+    color: #c96a00;
 }
 #chamber .chamberview {
-    border-top-color: #e8376a;
-    border-bottom-color: #e8376a;
-}
-.highlight {
-    color: #c4284f;
-}
-#chamber .entry.you .boardname, #chamber .entry.you .boardname a,
-#chamber .entry.you .rank, #chamber .entry.you .rank a,
-#chamber .entry.you .score, #chamber .entry.you .score a {
-    color: #c4284f;
+    border-top-color: #f7931e;
+    border-bottom-color: #f7931e;
 }
 
 html[class="dark"] .fa.fa-comment:hover,
@@ -88,13 +84,24 @@ html[class="dark"] #changelog .youtube i:hover,
 html[class="dark"] #chamber .youtube i:hover,
 html[class="dark"] #chambers .entry .youtube .fa-download:hover,
 html[class="dark"] #chambers .entry .youtube > .fa-youtube-play:hover {
-    color: #ff6f9c !important;
+    color: #ffab4d !important;
+}
+
+/* Portal blue - secondary accent, used for personal/"you" highlighting
+   (the .highlight class and your own row in a chamber's board) */
+.highlight {
+    color: #0e76a8;
+}
+#chamber .entry.you .boardname, #chamber .entry.you .boardname a,
+#chamber .entry.you .rank, #chamber .entry.you .rank a,
+#chamber .entry.you .score, #chamber .entry.you .score a {
+    color: #0e76a8;
 }
 html[class="dark"] .highlight,
 html[class="dark"] #chamber .entry.you .boardname, html[class="dark"] #chamber .entry.you .boardname a,
 html[class="dark"] #chamber .entry.you .rank, html[class="dark"] #chamber .entry.you .rank a,
 html[class="dark"] #chamber .entry.you .score, html[class="dark"] #chamber .entry.you .score a {
-    color: #ff6f9c;
+    color: #6fd1ff;
 }
 
 /* Header logo */
@@ -110,8 +117,8 @@ html[class="dark"] #brand-logo {
     filter: invert(1) brightness(1.4);
 }
 #sitetitle {
-    color: #c4284f;
+    color: #c96a00;
 }
 html[class="dark"] #sitetitle {
-    color: #ff6f9c;
+    color: #f7931e;
 }
