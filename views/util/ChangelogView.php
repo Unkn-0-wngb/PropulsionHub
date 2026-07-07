@@ -104,9 +104,11 @@ class ChangelogView
             </div>
             <div class="submission">
                 <?php if ($val["submission"] == 1): ?>
-                    <i class="fa fa-pencil" aria-hidden="true" data-toggle="tooltip" title="Submission"></i>
+                    <i class="fa fa-pencil" aria-hidden="true" data-toggle="tooltip" title="Manual upload"></i>
                 <?php elseif ($val["submission"] == 2): ?>
-                    <i class="fa fa-gamepad" aria-hidden="true" data-toggle="tooltip" title="Autosubmission"></i>
+                    <i class="fa fa-gamepad" aria-hidden="true" data-toggle="tooltip" title="Auto-submitted by the Portal 2 plugin"></i>
+                <?php else: ?>
+                    <i class="fa fa-steam" aria-hidden="true" data-toggle="tooltip" title="Pulled from Steam automatically"></i>
                 <?php endif; ?>
             </div>
             <?php if ($val["pending"] == 1): ?>

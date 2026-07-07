@@ -31,14 +31,26 @@
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
         <script>
-            localStorage.getItem('color-theme') !== 'light' && document.documentElement.classList.add('dark');
+            function getCookie(name) {
+                const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                return match ? match[2] : null;
+            }
+            function setCookie(name, value) {
+                const d = new Date();
+                d.setTime(d.getTime() + (10 * 365 * 24 * 60 * 60 * 1000)); // 10 years
+                document.cookie = name + '=' + value + '; path=/; expires=' + d.toGMTString();
+            }
+
+            // Light is the default; dark is opt-in and persisted via cookie
+            // (not localStorage) so it's available to server-rendered pages too.
+            getCookie('color-theme') === 'dark' && document.documentElement.classList.add('dark');
 
             function toggleTheme() {
-                if (localStorage.getItem('color-theme') ==='dark') {
-                    localStorage.setItem('color-theme', 'light');
+                if (getCookie('color-theme') === 'dark') {
+                    setCookie('color-theme', 'light');
                     document.documentElement.classList.remove('dark');
                 } else {
-                    localStorage.setItem('color-theme', 'dark');
+                    setCookie('color-theme', 'dark');
                     document.documentElement.classList.add('dark');
                 }
 

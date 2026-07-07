@@ -30,10 +30,11 @@ class ChamberView
             <div class="boardname"><a href="/profile/<?= $player; ?>"><?= $playerData["boardname"] ?></a></div>
             <div class="submission<?= $scoreData["submission"] == 2 ? ' autosubmission' : '' ?>">
                 <?php if ($scoreData["submission"] == 1): ?>
-                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                    <!-- data-toggle="tooltip" title="Submission" -->
+                    <i class="fa fa-pencil" aria-hidden="true" data-toggle="tooltip" title="Manual upload"></i>
                 <?php elseif ($scoreData["submission"] == 2): ?>
-                    <i class="fa fa-gamepad" aria-hidden="true"></i>
+                    <i class="fa fa-gamepad" aria-hidden="true" data-toggle="tooltip" title="Auto-submitted by the Portal 2 plugin"></i>
+                <?php else: ?>
+                    <i class="fa fa-steam" aria-hidden="true" data-toggle="tooltip" title="Pulled from Steam automatically"></i>
                 <?php endif; ?>
             </div>
             <a href="/changelog?profileNumber=<?=$player?>&chamber=<?=$GLOBALS["chamberID"]?>" class="score"><?= Leaderboard::convertToTime($scoreData["score"]) ?></a>

@@ -3,7 +3,8 @@ const darkModeRankingRange = ['violet', 'lightblue', '#42ff42', '#ffa542', '#ff4
 const lightModeRankingRange = ['darkviolet', 'blue', 'darkgreen', '#d67104', 'darkred'];
 
 function drawRank($element) {
-    const isDarkMode = localStorage.getItem('color-theme') === 'dark';
+    function getCookie(name) { const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)')); return m ? m[2] : null; }
+    const isDarkMode = getCookie('color-theme') === 'dark';
 
     const scale = d3.scaleLinear()
         .domain(rankingDomain)

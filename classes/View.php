@@ -68,12 +68,12 @@ class View {
     ];
 
     const pages = ["/js/pages.js"];
-    const chart = ["/js/chart.js"];
+    const chart = ["/js/chart.js?v=0.2"];
     const date = ["/js/date.js"];
     const youtubeSearch = ["/js/youtubeSearch.js"];
     const youtubeEmbed = ["/js/youtubeEmbed.js"];
     const score = ["/js/score.js"];
-    const rank = ["/js/rank.js"];
+    const rank = ["/js/rank.js?v=0.2"];
 
     static $page;
     static $pageData;
@@ -148,8 +148,8 @@ class View {
 
         $this->addJs(["/js/popover.js"]);
         $this->addCss(["/style/style.css?v=0.5"]);
-        $this->addCss(["/style/branding.css?v=0.1"]);
-        $this->addCss(["/style/responsive.css?v=0.1"]);
+        $this->addCss(["/style/branding.css?v=0.2"]);
+        $this->addCss(["/style/responsive.css?v=0.2"]);
     }
     public function addJs($path) {
         $this->js[] = $path + [1 => null];
