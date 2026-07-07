@@ -1,0 +1,186 @@
+/* UnknBoards responsive layer — loaded after style.css/branding.css.
+   The base stylesheet is a fixed-width ~2015-era layout (body has a hard
+   min-width: 1115px, and changelog.phtml even JS-forces min-width: 1365px
+   via inline style) with zero media queries, so nothing below ~1115px
+   viewport width could render without horizontal scrolling/zooming.
+
+   Strategy: neutralize the hard floors everywhere (they only existed to
+   stop content overflowing, not for visual reasons) with !important - this
+   is safe at desktop widths since min-width only matters when the natural
+   content width would otherwise be narrower, which never happens above
+   ~1024px anyway. Then reflow the header/nav and stack narrow layouts.
+   Fixed-width grids (chamber cards, e.g.) are float-based and already wrap
+   naturally once the outer floors are gone, so most of them need no
+   explicit rules here. The one deliberately-NOT-reflowed piece is the
+   changelog's dense multi-column table, which is wide by nature (8+
+   columns of scores/ranks/dates) - reflowing that into a card layout would
+   mean rewriting changelog.phtml's column markup, so instead it scrolls
+   horizontally in its own contained box while the rest of the page (chart,
+   filters, header) stays fully fluid. */
+
+html, body {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+/* NOTE: #header_left and #header_right are deliberately NOT reset here.
+   #navigation is `position: absolute; left: 28px;` with no explicit width
+   or `right`, so its shrink-to-fit width is capped by its containing
+   block's box width, i.e. #header_left's. Zeroing #header_left's
+   min-width unconditionally collapsed #navigation to ~205px at ALL
+   viewport widths (not just mobile), wrapping every nav item onto its own
+   line and overlapping the filter panel below. Their min-widths are only
+   relaxed inside the mobile media queries below, alongside the nav
+   restructuring that makes a narrower header actually work. */
+#footer, #header, #chamber, #entries, #changelog {
+    min-width: 0 !important;
+}
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* ===== Tablet and below ===== */
+@media (max-width: 1024px) {
+    #header_left {
+        min-width: 0 !important;
+        width: auto;
+        padding-left: 16px;
+    }
+    #header_right {
+        margin-right: 16px;
+    }
+    #navigation .btnLabel {
+        display: none;
+    }
+    #navigation .nav_dropdown > ul .btnLabel {
+        display: inline-block;
+    }
+    #navigation .nav_icon {
+        margin-right: 0;
+    }
+    .changelog-filter-options-wrapper {
+        flex-wrap: wrap;
+        row-gap: 12px;
+    }
+
+    #profile {
+        width: 100% !important;
+        max-width: 1277px;
+        padding: 10px 16px;
+    }
+}
+
+/* ===== Phone / small tablet ===== */
+@media (max-width: 768px) {
+    #header {
+        height: auto;
+        padding-bottom: 10px;
+    }
+    #header_left {
+        float: none;
+        width: 100%;
+        padding: 10px 16px 0 16px;
+    }
+    #header_right {
+        position: static;
+        float: none;
+        width: 100%;
+        margin: 8px 0 0 0;
+        padding: 0 16px 10px 16px;
+        display: block;
+    }
+    #header_right #userinfo {
+        position: static;
+        top: auto;
+        right: auto;
+    }
+    #navigation {
+        clear: both;
+        padding-top: 6px;
+    }
+    #navigation > a, #navigation > .nav_dropdown {
+        margin-bottom: 4px;
+    }
+    #brand-logo {
+        height: 28px;
+        width: 28px;
+        margin-top: 10px;
+    }
+    #sitetitle {
+        font-size: 20px;
+        margin-top: 12px;
+    }
+
+    #filters, #filter_options, .changelog-filter-options-wrapper {
+        width: 100%;
+    }
+    .changelog-filter-options-wrapper {
+        justify-content: flex-start;
+        gap: 16px;
+    }
+    .changelog-filter-options-group {
+        width: 100%;
+    }
+
+    /* Dense multi-column table: scroll horizontally in its own box rather
+       than trying to reflow 8+ fixed-width columns into cards. */
+    #entries {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    #firstentry, .page-entries .entry, #otherentries .entry {
+        min-width: 1360px;
+    }
+
+    #chambers, #leastportals {
+        padding: 0 8px;
+    }
+    #chambers .chapterinfo, #leastportals .chapterinfo {
+        margin-left: 8px;
+    }
+    #leastportals .chamber, #chambers .chamber {
+        margin-left: 8px;
+    }
+
+    #profile {
+        padding: 10px 8px;
+    }
+}
+
+/* ===== Small phone ===== */
+@media (max-width: 480px) {
+    #sitetitle {
+        font-size: 17px;
+    }
+    #navigation .nav_icon {
+        width: 24px;
+        height: 24px;
+    }
+    #loginsteam {
+        width: 130px;
+        height: 20px;
+        background-size: contain;
+        background-repeat: no-repeat;
+    }
+}
+
+/* Chapter titles use a huge 40.5px font sized for wide desktop headers;
+   at narrow widths long chapter names (e.g. "The Courtesy Call") wrap to
+   2 lines and overflow the fixed-height .chapterinfo container. */
+@media (max-width: 768px) {
+    #chambers .chapterinfo, #leastportals .chapterinfo {
+        height: auto;
+        min-height: 45px;
+        padding-bottom: 10px;
+    }
+    #leastportals .chaptername, #chambers .chaptername {
+        font-size: 26px;
+        margin-top: 4px;
+        line-height: 1.2;
+    }
+    #chambers .chapternumber, #leastportals .chapternumber {
+        font-size: 16px;
+    }
+}

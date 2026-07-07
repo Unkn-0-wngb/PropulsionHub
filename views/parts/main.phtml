@@ -18,7 +18,7 @@
         <meta name="referrer" content="no-referrer" />
 
         <title><?php echo $view->siteTitle . View::$pageData["pageTitle"]; ?></title>
-        <meta name="description" content="UnknBoards - Portal 2 Challenge Mode Leaderboards, personal fork of board.portal2.sr.">
+        <meta name="description" content="PropulsionHub - Portal 2 Challenge Mode Leaderboards, personal fork of board.portal2.sr.">
 
         <?php foreach($view->css as [$path, $hash]): ?>
             <link rel="stylesheet" type="text/css" href="<?=$path; ?>"<?php echo isset($hash) ? " integrity=\"$hash\" crossorigin=\"anonymous\"" : '' ?>>
@@ -58,8 +58,8 @@
             
             <div id="header">
                 <div id="header_left">
-                    <img id="brand-logo" src="/images/brand/unkn-logo.png" alt="UnknBoards logo">
-                    <h2 id="sitetitle">UnknBoards</h2>
+                    <img id="brand-logo" src="/images/brand/unkn-logo.png" alt="PropulsionHub logo">
+                    <h2 id="sitetitle">PropulsionHub</h2>
                     <div id="navigation">
                         <?php include("navigation.phtml"); ?>
                     </div>

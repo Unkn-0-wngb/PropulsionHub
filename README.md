@@ -1,4 +1,4 @@
-# UnknBoards
+# PropulsionHub
 
 A personal fork of [board.portal2.sr](https://github.com/p2sr/Portal2Boards) — Challenge Mode leaderboard
 for Portal 2 speedrunners. Deployed on a personal VPS rather than the p2sr production infrastructure;

@@ -127,7 +127,7 @@ class View {
     );
 
     public function __construct() {
-        $this->siteTitle = "UnknBoards | ";
+        $this->siteTitle = "PropulsionHub | ";
 
         $this->addCss([
             "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css?v=0.1",
@@ -149,6 +149,7 @@ class View {
         $this->addJs(["/js/popover.js"]);
         $this->addCss(["/style/style.css?v=0.5"]);
         $this->addCss(["/style/branding.css?v=0.1"]);
+        $this->addCss(["/style/responsive.css?v=0.1"]);
     }
     public function addJs($path) {
         $this->js[] = $path + [1 => null];
