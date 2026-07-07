@@ -124,3 +124,18 @@ html[class="dark"] #brand-logo {
 html[class="dark"] #sitetitle {
     color: #f7931e;
 }
+
+/* Changelog pager (prev/next + page count) sits near the Date column
+   header via absolute positioning, but scrolls away with the rest of the
+   page - sticky it near the top of the viewport so it's usable regardless
+   of scroll position. */
+#changelog .controls {
+    position: sticky;
+    top: 10px;
+    z-index: 20;
+    /* position:sticky (unlike the absolute it replaces) sizes as a normal
+       block box, i.e. full container width, rather than shrinking to
+       content - constrain it back down so it does not add its own
+       horizontal overflow at narrow widths. */
+    width: fit-content;
+}

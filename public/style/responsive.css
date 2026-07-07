@@ -22,9 +22,17 @@ html, body {
     min-width: 0 !important;
     width: 100% !important;
     max-width: 100vw;
-    overflow-x: hidden;
     box-sizing: border-box;
 }
+/* overflow-x:hidden here was removed deliberately: per spec, setting
+   overflow-x to a non-visible value while overflow-y is left at its
+   default (visible) forces overflow-y to auto-compute as auto too - on
+   this page that turned body into its own internally-scrolling box
+   instead of the normal window/viewport scrolling the document, which
+   broke things like position:sticky reference points and window.scrollY.
+   #entries already has its own overflow-x:auto for the dense table, and
+   the min-width floors above are already gone, so a blanket overflow-x
+   guard on html/body is not needed. */
 /* NOTE: #header_left and #header_right are deliberately NOT reset here.
    #navigation is `position: absolute; left: 28px;` with no explicit width
    or `right`, so its shrink-to-fit width is capped by its containing
@@ -48,7 +56,17 @@ html, body {
         width: auto;
         padding-left: 16px;
     }
+    /* Dropdown submenus (Aggregated/More) are visibility:hidden rather than
+       display:none, so their fixed 140-165px width still contributes to
+       the page scrollable area even off-screen. Contain that locally
+       instead of hiding overflow on html/body (which has its own bad side
+       effects - see the note near the top of this file). */
+    #navigation {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
     #header_right {
+        min-width: 0 !important;
         margin-right: 16px;
     }
     #navigation .btnLabel {
