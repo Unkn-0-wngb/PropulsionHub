@@ -1,9 +1,9 @@
 <?php
 
 class Discord {
-    private static $username = 'board.portal2.sr';
-    private static $avatar = 'https://raw.githubusercontent.com/p2sr/Portal2Boards/master/public/images/portal2boards_avatar.jpg';
-    private static $embed_icon = 'https://raw.githubusercontent.com/p2sr/Portal2Boards/master/public/images/portal2boards_icon.png';
+    private static $username = 'PropulsionHub';
+    private static $avatar = 'https://p2sr.laveryjonez.uk/images/brand/unkn-logo.png';
+    private static $embed_icon = 'https://p2sr.laveryjonez.uk/favicon.ico';
 
     public static function sendMdpWebhook($data, $demoName, $text, $err = null) {
         try {
@@ -53,14 +53,17 @@ class Discord {
             'avatar_url' => self::$avatar,
             'embeds' => [ $embed ]
         ];
-        $post = [
-            'payload_json' => json_encode($payload)
-        ];
-        Debug::log(json_encode($payload));
-        $ch = curl_init(Config::get()->discord_webhook_wr);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'board.portal2.sr (https://github.com/p2sr/Portal2Boards)');
+        $body = json_encode($payload);
+        Debug::log($body);
+        // wait=true is required - without it Discord returns 204 but silently
+        // drops the embed from the created message (reproducible; not
+        // documented, but confirmed empirically against the live API).
+        $ch = curl_init(Config::get()->discord_webhook_wr . '?wait=true');
+        curl_setopt($ch, CURLOPT_USERAGENT, 'PropulsionHub (https://github.com/Unkn-0-wngb/PropulsionHub)');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_exec($ch);
         curl_close($ch);
         Debug::log("Sending Webhook - Finished");
@@ -69,10 +72,10 @@ class Discord {
     public static function buildEmbed($data) {
         $embed = [
             'title' => $data['map'],
-            'url' => 'https://board.portal2.sr/chamber/'.$data['map_id'],
-            'color' => 295077,
+            'url' => 'https://p2sr.laveryjonez.uk/chamber/'.$data['map_id'],
+            'color' => 15959074,
             'thumbnail' => [
-                'url' => 'https://raw.githubusercontent.com/p2sr/Portal2Boards/master/public/images/thumbnails/'.$data['map_id'].'.jpg',
+                'url' => 'https://p2sr.laveryjonez.uk/images/chambers/'.$data['map_id'].'.jpg',
             ],
             'fields' => [
                 [
@@ -82,7 +85,7 @@ class Discord {
                 ],
                 [
                     'name' => 'By',
-                    'value' => '['.self::sanitiseText($data['player']).'](<https://board.portal2.sr/profile/'.$data['player_id'].'>)',
+                    'value' => '['.self::sanitiseText($data['player']).'](<https://p2sr.laveryjonez.uk/profile/'.$data['player_id'].'>)',
                     'inline' => true
                 ],
             ]
