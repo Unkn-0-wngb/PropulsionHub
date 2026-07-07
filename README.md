@@ -1,6 +1,15 @@
-# board.portal2.sr
+# UnknBoards
 
-Challenge Mode leaderboard for Portal 2 speedrunners.
+A personal fork of [board.portal2.sr](https://github.com/p2sr/Portal2Boards) — Challenge Mode leaderboard
+for Portal 2 speedrunners. Deployed on a personal VPS rather than the p2sr production infrastructure;
+the backend/DB logic and Steam-polling pipeline are kept as-is from upstream, with customization scoped to
+the front-end view layer (`views/*.phtml`) and branding.
+
+## Upstream
+
+This is a fork of [p2sr/Portal2Boards](https://github.com/p2sr/Portal2Boards), licensed under GPLv3
+(see [LICENSE](LICENSE)). All credit for the leaderboard backend, score verification pipeline, and data
+model goes to the p2sr community and contributors.
 
 ## Development
 

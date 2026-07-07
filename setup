@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # File name for generating SSL certificates (dev-only)
-site=board.portal2.local
+site=board.unkn.local
 
 # File name of gzip'd database dump
 dbname=iverborg_leaderboard
