@@ -1,0 +1,117 @@
+/* UnknBoards branding layer — loaded after style.css, overrides accent
+   colors and typography without touching the base layout rules. */
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/style/fonts/inter-normal-400.ttf') format('truetype');
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/style/fonts/inter-normal-500.ttf') format('truetype');
+    font-weight: 500;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/style/fonts/inter-normal-600.ttf') format('truetype');
+    font-weight: 600;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/style/fonts/inter-normal-700.ttf') format('truetype');
+    font-weight: 700;
+    font-display: swap;
+}
+
+body, input, select, label {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Dark mode: the shipped "_dark" art (debut_dark.png, header_bg_dark.jpg)
+   turned out to be light gray (~#B7B7B7), not actually dark - probably a
+   legacy/unfinished asset. Real content panels already have their own dark
+   backgrounds (from upstream's html[class="dark"] rules) so the body tile
+   barely shows, but #header has nothing else covering it, so it rendered as
+   a washed-out gray bar. Use a solid near-black there instead. */
+html[class="dark"], html[class="dark"] body {
+    background: #0a0a0c;
+}
+html[class="dark"] #header {
+    background: #0a0a0c;
+    border-bottom: 1px solid rgba(232,55,106,0.25);
+}
+
+/* Brand accent: swap the site's blue accent for the brand pink/red,
+   matching laveryjonez.uk. Same selectors as style.css, new color. */
+#changelog #changelogActivity .loading, #profile #changelogactivity .loading {
+    color: #e8376a;
+}
+#seper,
+html[class="dark"] #profile .userinformation .general-wrapper .profileBannerButton:hover,
+#profile .uploadInfo, #chamber .not-public-chambers, #announcement,
+html[class="dark"] #profile .button:hover,
+html[class="dark"] #editProfile .button:hover {
+    background: #e8376a;
+}
+#leastportals .chamber.leastportals .chamberimage,
+#chambers .chamberimage, #leastportals .chamberimage {
+    border-color: #e8376a;
+}
+#about .largeTitle,
+#chambers .chapternumber, #editProfile .title, #about .title, #chambers .chaptername, #leastportals .chaptername, h1, h2,
+#about .title,
+#about .subtitle,
+#chamber .chamberview {
+    color: #c4284f;
+}
+#chamber .chamberview {
+    border-top-color: #e8376a;
+    border-bottom-color: #e8376a;
+}
+.highlight {
+    color: #c4284f;
+}
+#chamber .entry.you .boardname, #chamber .entry.you .boardname a,
+#chamber .entry.you .rank, #chamber .entry.you .rank a,
+#chamber .entry.you .score, #chamber .entry.you .score a {
+    color: #c4284f;
+}
+
+html[class="dark"] .fa.fa-comment:hover,
+html[class="dark"] .fa.fa-play:hover,
+html[class="dark"] h1,
+html[class="dark"] #chambers .entry .youtube i:hover,
+html[class="dark"] #changelog .youtube i:hover,
+html[class="dark"] #chamber .youtube i:hover,
+html[class="dark"] #chambers .entry .youtube .fa-download:hover,
+html[class="dark"] #chambers .entry .youtube > .fa-youtube-play:hover {
+    color: #ff6f9c !important;
+}
+html[class="dark"] .highlight,
+html[class="dark"] #chamber .entry.you .boardname, html[class="dark"] #chamber .entry.you .boardname a,
+html[class="dark"] #chamber .entry.you .rank, html[class="dark"] #chamber .entry.you .rank a,
+html[class="dark"] #chamber .entry.you .score, html[class="dark"] #chamber .entry.you .score a {
+    color: #ff6f9c;
+}
+
+/* Header logo */
+#brand-logo {
+    float: left;
+    height: 34px;
+    width: 34px;
+    margin-top: 14px;
+    margin-right: 10px;
+    filter: none;
+}
+html[class="dark"] #brand-logo {
+    filter: invert(1) brightness(1.4);
+}
+#sitetitle {
+    color: #c4284f;
+}
+html[class="dark"] #sitetitle {
+    color: #ff6f9c;
+}

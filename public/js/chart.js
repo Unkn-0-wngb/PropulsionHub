@@ -165,10 +165,10 @@ function drawActivityChart(activityByDate, beginDate, endDate, $element, resize)
                 str += "</table>";
                 $(".morris-hover").html(str);
             },
-            barColors: ['#2f96d1'],
+            barColors: ['#e8376a'],
             hideHover: 'auto',
-            gridTextFamily: "Segoe UI",
-            gridTextColor: "#777"
+            gridTextFamily: "Inter",
+            gridTextColor: "#999"
         });
     }
 
