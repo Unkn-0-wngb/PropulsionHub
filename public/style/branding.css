@@ -118,10 +118,18 @@ html[class="dark"] #chamber .entry.you .score, html[class="dark"] #chamber .entr
 html[class="dark"] #brand-logo {
     filter: brightness(0) invert(1);
 }
-#sitetitle {
+/* "Propulsion" in portal blue, "Hub" in portal orange - the same
+   duotone used for the accent colors elsewhere on the site. */
+#sitetitle .site-title-propulsion {
+    color: #0e76a8;
+}
+#sitetitle .site-title-hub {
     color: #c96a00;
 }
-html[class="dark"] #sitetitle {
+html[class="dark"] #sitetitle .site-title-propulsion {
+    color: #6fd1ff;
+}
+html[class="dark"] #sitetitle .site-title-hub {
     color: #f7931e;
 }
 

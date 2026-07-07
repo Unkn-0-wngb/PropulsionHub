@@ -131,7 +131,7 @@ class View {
     );
 
     public function __construct() {
-        $this->siteTitle = "PropulsionHub | ";
+        $this->siteTitle = "Propulsion Hub | ";
 
         $this->addCss([
             "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css?v=0.1",
@@ -152,7 +152,7 @@ class View {
 
         $this->addJs(["/js/popover.js"]);
         $this->addCss(["/style/style.css?v=0.5"]);
-        $this->addCss(["/style/branding.css?v=0.5"]);
+        $this->addCss(["/style/branding.css?v=0.6"]);
         $this->addCss(["/style/responsive.css?v=0.5"]);
     }
     public function addJs($path) {
