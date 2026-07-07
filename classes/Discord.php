@@ -69,6 +69,49 @@ class Discord {
         Debug::log("Sending Webhook - Finished");
     }
 
+    public static function sendPendingWebhook($data) {
+        $url = Config::get()->discord_webhook_pending;
+        if (!$url) {
+            return;
+        }
+        $embed = [
+            'title' => $data['map'],
+            'url' => 'https://p2sr.laveryjonez.uk/chamber/'.$data['map_id'],
+            'color' => 3092790,
+            'thumbnail' => [
+                'url' => 'https://p2sr.laveryjonez.uk/images/chambers/'.$data['map_id'].'.jpg',
+            ],
+            'fields' => [
+                [
+                    'name' => 'Score',
+                    'value' => $data['score'],
+                    'inline' => true
+                ],
+                [
+                    'name' => 'By',
+                    'value' => '['.self::sanitiseText($data['player']).'](<https://p2sr.laveryjonez.uk/profile/'.$data['player_id'].'>)',
+                    'inline' => true
+                ],
+            ]
+        ];
+        $payload = [
+            'username' => self::$username,
+            'avatar_url' => self::$avatar,
+            'content' => '⏳ New run awaiting demo verification (rank inside top verification threshold, no demo attached yet).',
+            'embeds' => [ (object)$embed ]
+        ];
+        $body = json_encode($payload);
+        Debug::log($body);
+        $ch = curl_init($url . '?wait=true');
+        curl_setopt($ch, CURLOPT_USERAGENT, 'PropulsionHub (https://github.com/Unkn-0-wngb/PropulsionHub)');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_exec($ch);
+        curl_close($ch);
+    }
+
     public static function buildEmbed($data) {
         $embed = [
             'title' => $data['map'],

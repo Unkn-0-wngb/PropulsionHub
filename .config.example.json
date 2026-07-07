@@ -13,5 +13,6 @@
     "discord_client_secret": "",
     "discord_bot_token": "",
     "discord_guild_id": "",
-    "discord_speedrunner_role_id": ""
+    "discord_speedrunner_role_id": "",
+    "discord_webhook_pending": ""
 }

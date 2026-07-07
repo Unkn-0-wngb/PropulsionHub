@@ -20,6 +20,14 @@
         <title><?php echo $view->siteTitle . View::$pageData["pageTitle"]; ?></title>
         <meta name="description" content="PropulsionHub - Portal 2 Challenge Mode Leaderboards, personal fork of board.portal2.sr.">
 
+        <meta property="og:site_name" content="PropulsionHub">
+        <meta property="og:title" content="<?php echo $view->siteTitle . View::$pageData["pageTitle"]; ?>">
+        <meta property="og:description" content="Portal 2 Challenge Mode leaderboard - live score updates, chamber times, and speedrun categories.">
+        <meta property="og:image" content="https://p2sr.laveryjonez.uk/images/brand/unkn-logo.png">
+        <meta property="og:type" content="website">
+        <meta name="theme-color" content="#f7931e">
+        <meta name="twitter:card" content="summary">
+
         <?php foreach($view->css as [$path, $hash]): ?>
             <link rel="stylesheet" type="text/css" href="<?=$path; ?>"<?php echo isset($hash) ? " integrity=\"$hash\" crossorigin=\"anonymous\"" : '' ?>>
         <?php endforeach; ?>

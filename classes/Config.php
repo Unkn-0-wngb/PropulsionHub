@@ -21,6 +21,7 @@ final class Config {
     public string $discord_bot_token;
     public string $discord_guild_id;
     public string $discord_speedrunner_role_id;
+    public string $discord_webhook_pending;
 
     private static $_instance;
 

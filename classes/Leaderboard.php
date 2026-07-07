@@ -515,6 +515,17 @@ class Leaderboard
             Debug::log("Pending: ".$pending);
             Debug::log("Updating rank of new changelog entry. Player: ".$change["profileNumber"]." Map: ".$change["mapId"]." Score: ".$change["score"]." Rank: ".$postRank." Pending: ".$pending);
 
+            if ($pending == 1) {
+                $pendingUser = new User($change["profileNumber"]);
+                Discord::sendPendingWebhook([
+                    'map_id' => $change["mapId"],
+                    'map' => $maps["maps"][$change["mapId"]]["mapName"],
+                    'score' => Util::formatScoreTime($change["score"]),
+                    'player' => $pendingUser->userData->displayName,
+                    'player_id' => $change["profileNumber"],
+                ]);
+            }
+
             Database::query(
                 "UPDATE changelog
                  SET post_rank = ?
