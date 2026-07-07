@@ -11,7 +11,7 @@ class Discord {
             $payload = [
                 'username' => 'Demo Parse Bot',
                 'avatar_url' => self::$avatar,
-                'content' => 'Link to change log: [Click Here](<https://board.portal2.sr/changelog?id='.$data['id'].'>)'
+                'content' => 'Link to change log: [Click Here](<https://p2sr.laveryjonez.uk/changelog?id='.$data['id'].'>)'
             ];
             $tempFile = self::CreateTempFile($text);
             $tempErrFile = self::CreateTempFile($err);
@@ -25,7 +25,7 @@ class Discord {
             }
             //Debug::log(json_encode($payload));
             $ch = curl_init(Config::get()->discord_webhook_mdp);
-            curl_setopt($ch, CURLOPT_USERAGENT, 'board.portal2.sr (https://github.com/p2sr/Portal2Boards)');
+            curl_setopt($ch, CURLOPT_USERAGENT, 'PropulsionHub (https://github.com/Unkn-0-wngb/PropulsionHub)');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
