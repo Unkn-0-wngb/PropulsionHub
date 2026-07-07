@@ -111,10 +111,12 @@ html[class="dark"] #chamber .entry.you .score, html[class="dark"] #chamber .entr
     width: 34px;
     margin-top: 14px;
     margin-right: 10px;
-    filter: none;
+    /* Source PNG is light gray (~#c4c3c1), not black - brightness(0)
+       crushes it to solid black while keeping the alpha/transparency. */
+    filter: brightness(0);
 }
 html[class="dark"] #brand-logo {
-    filter: invert(1) brightness(1.4);
+    filter: brightness(0) invert(1);
 }
 #sitetitle {
     color: #c96a00;

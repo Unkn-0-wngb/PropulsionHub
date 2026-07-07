@@ -148,7 +148,7 @@ class View {
 
         $this->addJs(["/js/popover.js"]);
         $this->addCss(["/style/style.css?v=0.5"]);
-        $this->addCss(["/style/branding.css?v=0.2"]);
+        $this->addCss(["/style/branding.css?v=0.3"]);
         $this->addCss(["/style/responsive.css?v=0.2"]);
     }
     public function addJs($path) {
