@@ -104,39 +104,6 @@ class Router {
             exit;
         }
 
-        // Redirect to Discord's OAuth consent screen. Must already be
-        // signed in via Steam - we link Discord to whichever profile is
-        // currently in the session.
-        if ($location[1] == "discord" && isset($location[2]) && $location[2] == "link") {
-            if (!isset(SteamSignIn::$loggedInUser)) {
-                header("Location: /");
-                exit;
-            }
-            $host = Config::get()->is_using_proxy ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
-            header("Location: " . DiscordSignIn::genUrl($host));
-            exit;
-        }
-
-        if ($location[1] == "discord" && isset($location[2]) && $location[2] == "callback") {
-            if (!isset(SteamSignIn::$loggedInUser) || !isset($_GET["code"])) {
-                header("Location: /");
-                exit;
-            }
-            $host = Config::get()->is_using_proxy ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
-            DiscordSignIn::linkAccount($_GET["code"], $host, SteamSignIn::$loggedInUser->profileNumber);
-            header("Location: /profile/".SteamSignIn::$loggedInUser->profileNumber);
-            exit;
-        }
-
-        if ($location[1] == "discord" && isset($location[2]) && $location[2] == "unlink") {
-            if (!isset(SteamSignIn::$loggedInUser)) {
-                header("Location: /");
-                exit;
-            }
-            DiscordSignIn::unlinkAccount(SteamSignIn::$loggedInUser->profileNumber);
-            header("Location: /profile/".SteamSignIn::$loggedInUser->profileNumber);
-            exit;
-        }
 
         //destroy session and session cookie when logging out
         if ($location[1] == "logout") {

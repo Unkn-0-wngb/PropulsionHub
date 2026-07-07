@@ -21,9 +21,6 @@ class MdpManager {
         if ($resultCode == -1 || strlen($stderr) > 1) {
             // Error has occured
             Debug::log("Error has occured with running Mdp on $demoPath");
-            Discord::sendMdpWebhook($demoDetails, $demoName, $stdout, $stderr);
-        } else {
-            Discord::sendMdpWebhook($demoDetails, $demoName, $stdout);
         }
     }
 

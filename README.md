@@ -17,7 +17,7 @@ model goes to the p2sr community and contributors.
 
 #### With GitHub
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/p2sr/Portal2Boards)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Unkn-0-wngb/PropulsionHub)
 
 - Wait for containers to start
 - Update `"is_using_proxy": true` in `.config.json`
@@ -30,12 +30,12 @@ model goes to the p2sr community and contributors.
 - Make sure
   [the extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
   is installed
-- Add the host entry `127.0.0.1 board.portal2.local` to `/etc/hosts` or
+- Add the host entry `127.0.0.1 board.propulsionhub.local` to `/etc/hosts` or
   `C:\Windows\System32\drivers\etc\hosts`
 - Open container with VS Code
 - Wait for containers to start
 - Forward port 443 from ports tab in VS Code
-- Access site with the forwarded port: `https://board.portal2.local:`
+- Access site with the forwarded port: `https://board.propulsionhub.local:`
 
 ### Requirements
 
@@ -53,9 +53,9 @@ model goes to the p2sr community and contributors.
 
 - Run setup script `./setup dev`
 - Start the containers with `docker compose up`
-- Add the host entry `127.0.0.1 board.portal2.local` to `/etc/hosts`
+- Add the host entry `127.0.0.1 board.propulsionhub.local` to `/etc/hosts`
 
-The server should now be available at: `https://board.portal2.local`
+The server should now be available at: `https://board.propulsionhub.local`
 
 ### Overview of .env
 
@@ -159,15 +159,15 @@ Usage with LSP:
     "--allow-env",
     "--env-file=./tests/.env",
     "--allow-read=./tests/data",
-    "--allow-net=board.portal2.local",
-    "--unsafely-ignore-certificate-errors=board.portal2.local"
+    "--allow-net=board.propulsionhub.local",
+    "--unsafely-ignore-certificate-errors=board.propulsionhub.local"
   ],
   "deno.codeLens.testArgs": [
     "--allow-env",
     "--env-file=./tests/.env",
     "--allow-read=./tests/data",
-    "--allow-net=board.portal2.local",
-    "--unsafely-ignore-certificate-errors=board.portal2.local"
+    "--allow-net=board.propulsionhub.local",
+    "--unsafely-ignore-certificate-errors=board.propulsionhub.local"
   ]
 }
 ```

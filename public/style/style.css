@@ -1962,7 +1962,7 @@ html[class="dark"] .popover-content {
 html[class="dark"] .popover.top > .arrow:after {
     border-top-color: #2a2c31;
 }
-@-moz-document domain(board.portal2.sr) {
+@-moz-document domain(p2sr.laveryjonez.uk) {
     #changelog .datetime{
         width: auto !important;
     }

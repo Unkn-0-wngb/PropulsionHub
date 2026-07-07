@@ -12,16 +12,8 @@ final class Config {
     public string $database_user;
     public string $database_pass;
     public string $database_name;
-    public string $discord_webhook_wr;
-    public string $discord_webhook_mdp;
     public string $steam_api_key;
     public string $autorender_api_token;
-    public string $discord_client_id;
-    public string $discord_client_secret;
-    public string $discord_bot_token;
-    public string $discord_guild_id;
-    public string $discord_speedrunner_role_id;
-    public string $discord_webhook_pending;
 
     private static $_instance;
 

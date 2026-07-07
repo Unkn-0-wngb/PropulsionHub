@@ -84,9 +84,6 @@
                     <?php elseif ($user->userData->title != NULL): ?>
                         <div class="profile-desc"><?=$user->userData->title?></div>
                     <?php endif; ?>
-                    <?php if ($user->userData->discord_id ?? null): ?>
-                        <div class="profile-desc" style="opacity: 0.8;">Discord: <?=htmlspecialchars($user->userData->discord_username);?></div>
-                    <?php endif; ?>
                     <div class="usericons">
                         <?php if (strlen($user->userData->youtube) > 0): ?>
                             <a href="https://www.youtube.com<?=$user->userData->youtube;?>" style="text-decoration : none;" target="_blank">

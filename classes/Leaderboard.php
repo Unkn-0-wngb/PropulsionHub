@@ -515,17 +515,6 @@ class Leaderboard
             Debug::log("Pending: ".$pending);
             Debug::log("Updating rank of new changelog entry. Player: ".$change["profileNumber"]." Map: ".$change["mapId"]." Score: ".$change["score"]." Rank: ".$postRank." Pending: ".$pending);
 
-            if ($pending == 1) {
-                $pendingUser = new User($change["profileNumber"]);
-                Discord::sendPendingWebhook([
-                    'map_id' => $change["mapId"],
-                    'map' => $maps["maps"][$change["mapId"]]["mapName"],
-                    'score' => Util::formatScoreTime($change["score"]),
-                    'player' => $pendingUser->userData->displayName,
-                    'player_id' => $change["profileNumber"],
-                ]);
-            }
-
             Database::query(
                 "UPDATE changelog
                  SET post_rank = ?
@@ -1330,7 +1319,6 @@ class Leaderboard
         if (self::isBest($profile_number, $map_id, $changelogId) && $hasDemo == 1) {
             // TODO - Check on removed if we need to go back to old value and sent as pending
             Debug::log("Is latest");
-            self::wrCheck($changelogId);
             self::setScoreTable($profile_number, $map_id, $changelogId);
         }
         if ($hasDemo == 0) {
@@ -1839,47 +1827,6 @@ class Leaderboard
                 $chamber,
             ]
         );
-    }
-
-    private static function wrCheck($changeLogId) {
-        Debug::log("Starting WR check");
-        $result = self::getChange($changeLogId);
-        $chamber = $result['mapid'];
-        $profileNumber = $result['profile_number'];
-        $score = $result['score'];
-
-        $maps = Cache::get("maps");
-        $chapter = $maps["maps"][$chamber]["chapterId"];
-        $oldBoards = self::getBoard(array("chamber" => $chamber));
-        $oldChamberBoard = $oldBoards[$chapter][$chamber];
-
-        $wr = 0;
-        $diff = 0;
-        $keys = array_keys($oldChamberBoard);
-        Debug::log( $oldChamberBoard[$keys[0]]["scoreData"]["score"]);
-        if ($score <= $oldChamberBoard[$keys[0]]["scoreData"]["score"]) {
-            $wr = 1;
-            $diff = abs($score - $oldChamberBoard[$keys[0]]["scoreData"]["score"]);
-        }
-
-        Debug::log("diff: ".$diff." WR: ".$wr);
-
-        if ($wr == 1) {
-            $user = new User($profileNumber);
-            $data = [
-                'id' => $changeLogId,
-                'timestamp' => new DateTime(),
-                'map_id' => $chamber,
-                'player_id' => $profileNumber,
-                'player' => $user->userData->displayName,
-                'player_avatar' => $user->userData->avatar,
-                'map' => $maps["maps"][$chamber]["mapName"],
-                'score' => Util::formatScoreTime($score),
-                'wr_diff' => Util::formatScoreTime($diff)
-            ];
-            Debug::log("SEND WEBHOOK FOR WR");
-            Discord::sendWebhook($data);
-        }
     }
 
     public static function getLatestPb(string $profile_number, string $map_id) {
