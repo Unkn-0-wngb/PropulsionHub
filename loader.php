@@ -11,6 +11,7 @@ require_once(ROOT_PATH."/classes/Discord.php");
 require_once(ROOT_PATH."/classes/Cache.php");
 require_once(ROOT_PATH."/classes/Leaderboard.php");
 require_once(ROOT_PATH."/classes/SteamSignIn.php");
+require_once(ROOT_PATH."/classes/DiscordSignIn.php");
 require_once(ROOT_PATH."/classes/User.php");
 require_once(ROOT_PATH."/classes/View.php");
 require_once(ROOT_PATH."/classes/Router.php");

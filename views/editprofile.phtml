@@ -21,6 +21,15 @@
         <button class="button btn" data-clipboard-text="<?=$loggedInUser->userData->auth_hash;?>" style="margin: 0 0 10px;">Copy</button>
         <button class="button regen-btn" style="margin: 0 0 10px;">Regenerate</button>
     </div>
+
+    <div class="discord_link" style="display: flex; align-items: center; gap: 1rem; margin-top: 20px;">
+        <?php if ($loggedInUser->userData->discord_id ?? null): ?>
+            <p>Discord: <b><?=htmlspecialchars($loggedInUser->userData->discord_username);?></b></p>
+            <a class="button" href="/discord/unlink" style="margin: 0 0 10px;">Unlink</a>
+        <?php else: ?>
+            <a class="button" href="/discord/link" style="margin: 0 0 10px;">Link Discord account</a>
+        <?php endif; ?>
+    </div>
 </div>
 
 <script>

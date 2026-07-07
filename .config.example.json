@@ -8,5 +8,10 @@
     "discord_webhook_wr": "",
     "discord_webhook_mdp": "",
     "steam_api_key": "",
-    "autorender_api_token": ""
+    "autorender_api_token": "",
+    "discord_client_id": "",
+    "discord_client_secret": "",
+    "discord_bot_token": "",
+    "discord_guild_id": "",
+    "discord_speedrunner_role_id": ""
 }
