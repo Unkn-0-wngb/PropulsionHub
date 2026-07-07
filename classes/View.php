@@ -123,6 +123,10 @@ class View {
         "donators" => array(
             "contentTemplate" => "donators.phtml",
             "pageTitle" => "Donators"
+        ),
+        "forum" => array(
+            "contentTemplate" => "forum.phtml",
+            "pageTitle" => "Forum"
         )
     );
 

@@ -645,6 +645,81 @@ class Router {
             exit;
         }
 
+        if ($location[1] == "forum" && isset($location[2]) && $location[2] == "newthread") {
+            if (!isset(SteamSignIn::$loggedInUser)) {
+                header("Location: /forum");
+                exit;
+            }
+            if (isset($_POST["category_id"]) && isset($_POST["title"]) && isset($_POST["body"])) {
+                $categoryId = intval($_POST["category_id"]);
+                $category = Forum::getCategory($categoryId);
+                if ($category
+                    && (!$category["admin_only_post"] || SteamSignIn::loggedInUserIsAdmin())
+                    && trim($_POST["title"]) != ""
+                    && trim($_POST["body"]) != ""
+                ) {
+                    $threadId = Forum::createThread($categoryId, SteamSignIn::$loggedInUser->profileNumber, strval($_POST["title"]), strval($_POST["body"]));
+                    header("Location: /forum/thread/".$threadId);
+                    exit;
+                }
+            }
+            header("Location: /forum");
+            exit;
+        }
+
+        if ($location[1] == "forum" && isset($location[2]) && $location[2] == "newpost") {
+            if (!isset(SteamSignIn::$loggedInUser)) {
+                header("Location: /forum");
+                exit;
+            }
+            if (isset($_POST["thread_id"]) && isset($_POST["body"]) && trim($_POST["body"]) != "") {
+                $threadId = intval($_POST["thread_id"]);
+                $thread = Forum::getThread($threadId);
+                if ($thread && !$thread["locked"]) {
+                    Forum::createPost($threadId, SteamSignIn::$loggedInUser->profileNumber, strval($_POST["body"]));
+                }
+                header("Location: /forum/thread/".$threadId);
+                exit;
+            }
+            header("Location: /forum");
+            exit;
+        }
+
+        if ($location[1] == "forum" && isset($location[2]) && $location[2] == "lockthread") {
+            $threadId = intval($_POST["thread_id"] ?? 0);
+            if (SteamSignIn::loggedInUserIsAdmin() && $threadId) {
+                Forum::setThreadLocked($threadId, intval($_POST["locked"] ?? 0));
+            }
+            header("Location: /forum/thread/".$threadId);
+            exit;
+        }
+
+        if ($location[1] == "forum" && isset($location[2]) && $location[2] == "deletethread") {
+            if (SteamSignIn::loggedInUserIsAdmin() && isset($_POST["thread_id"])) {
+                $thread = Forum::getThread(intval($_POST["thread_id"]));
+                if ($thread) {
+                    Forum::deleteThread(intval($_POST["thread_id"]));
+                    header("Location: /forum/category/".$thread["category_id"]);
+                    exit;
+                }
+            }
+            header("Location: /forum");
+            exit;
+        }
+
+        if ($location[1] == "forum" && isset($location[2]) && $location[2] == "deletepost") {
+            if (isset($_POST["post_id"])) {
+                $post = Forum::getPost(intval($_POST["post_id"]));
+                if ($post && (SteamSignIn::loggedInUserIsAdmin() || SteamSignIn::isLoggedIn($post["profile_number"]))) {
+                    Forum::deletePost(intval($_POST["post_id"]));
+                    header("Location: /forum/thread/".$post["thread_id"]);
+                    exit;
+                }
+            }
+            header("Location: /forum");
+            exit;
+        }
+
         //page request handling
         if ($location[1] == "") {
             $this->routeToDefault();
@@ -816,6 +891,32 @@ class Router {
                     $this->routeTo404();
                 }
             }
+        }
+
+        if ($location[1] == "forum" && isset($location[2])) {
+            if ($location[2] == "category" && isset($location[3])) {
+                $category = Forum::getCategory($location[3]);
+                if (!$category) {
+                    $this->routeTo404();
+                } else {
+                    $view->forumCategory = $category;
+                    $view->forumThreads = Forum::getThreads($location[3]);
+                    View::$pageData["pageTitle"] = $category["name"];
+                }
+            } else if ($location[2] == "thread" && isset($location[3])) {
+                $thread = Forum::getThread($location[3]);
+                if (!$thread) {
+                    $this->routeTo404();
+                } else {
+                    $view->forumThread = $thread;
+                    $view->forumPosts = Forum::getPosts($location[3]);
+                    View::$pageData["pageTitle"] = $thread["title"];
+                }
+            } else {
+                $this->routeTo404();
+            }
+        } else if ($location[1] == "forum") {
+            $view->forumCategories = Forum::getCategories();
         }
 
         if ($location[1] == "donators") {

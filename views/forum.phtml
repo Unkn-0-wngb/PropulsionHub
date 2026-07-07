@@ -1,0 +1,125 @@
+<style>
+    .forum-list { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .forum-list td, .forum-list th { padding: 10px; text-align: left; }
+    .forum-list tr { border-bottom: 1px solid rgba(128,128,128,0.25); }
+    .forum-list th { opacity: 0.7; font-weight: 500; }
+    .forum-desc { opacity: 0.7; font-size: 12px; margin-top: 2px; }
+    .forum-meta { opacity: 0.7; font-size: 12px; }
+    .forum-post { border: 1px solid rgba(128,128,128,0.25); border-radius: 6px; padding: 15px; margin-top: 15px; display: flex; gap: 15px; }
+    .forum-post img { width: 48px; height: 48px; border-radius: 24px; }
+    .forum-post-body { white-space: pre-wrap; word-break: break-word; margin-top: 8px; }
+    .forum-form textarea { width: 100%; min-height: 100px; margin-top: 10px; font-family: inherit; }
+    .forum-form input[type=text] { width: 100%; }
+    .forum-pinned { color: #f7931e; font-weight: bold; margin-right: 6px; }
+    .forum-locked { opacity: 0.6; }
+    .forum-admin-badge { color: #f7931e; font-size: 11px; border: 1px solid #f7931e; border-radius: 3px; padding: 1px 5px; margin-left: 6px; }
+</style>
+
+<div id="about">
+    <?php if (isset($view->forumThread)): ?>
+        <?php $t = $view->forumThread; ?>
+        <h1 class="largeTitle"><a href="/forum/category/<?= (int)$t["category_id"] ?>"><?= htmlspecialchars($t["categoryName"]) ?></a></h1>
+        <h1 class="title">
+            <?php if ($t["pinned"]): ?><span class="forum-pinned">PINNED</span><?php endif; ?>
+            <?= htmlspecialchars($t["title"]) ?>
+            <?php if ($t["locked"]): ?><span class="forum-meta">(locked)</span><?php endif; ?>
+        </h1>
+        <div class="forum-meta">
+            Started by <a href="/profile/<?= $t["profile_number"] ?>"><?= htmlspecialchars($t["authorName"] ?? "Unknown") ?></a>
+        </div>
+
+        <?php foreach ($view->forumPosts as $p): ?>
+            <div class="forum-post">
+                <img src="<?= htmlspecialchars($p["authorAvatar"] ?? "") ?>" alt="">
+                <div style="flex: 1;">
+                    <div>
+                        <a href="/profile/<?= $p["profile_number"] ?>"><?= htmlspecialchars($p["authorName"] ?? "Unknown") ?></a>
+                        <?php if ($p["authorIsAdmin"]): ?><span class="forum-admin-badge">ADMIN</span><?php endif; ?>
+                        <span class="forum-meta"> - <?= htmlspecialchars($p["created_at"]) ?></span>
+                    </div>
+                    <div class="forum-post-body"><?= htmlspecialchars($p["body"]) ?></div>
+                    <?php if (SteamSignIn::hasProfilePrivileges($p["profile_number"])): ?>
+                        <form method="post" action="/forum/deletepost" style="margin-top: 8px;" onsubmit="return confirm('Delete this post?');">
+                            <input type="hidden" name="post_id" value="<?= $p["id"] ?>">
+                            <button class="button" type="submit">Delete</button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
+        <?php if (isset(SteamSignIn::$loggedInUser) && !$t["locked"]): ?>
+            <form class="forum-form" method="post" action="/forum/newpost">
+                <input type="hidden" name="thread_id" value="<?= (int)$t["id"] ?>">
+                <textarea name="body" placeholder="Write a reply..." required></textarea>
+                <button class="button" type="submit" style="margin-top: 10px;">Reply</button>
+            </form>
+        <?php elseif (!isset(SteamSignIn::$loggedInUser)): ?>
+            <div class="forum-meta" style="margin-top: 15px;">Sign in with Steam to reply.</div>
+        <?php endif; ?>
+
+        <?php if (SteamSignIn::loggedInUserIsAdmin()): ?>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <form method="post" action="/forum/lockthread">
+                    <input type="hidden" name="thread_id" value="<?= (int)$t["id"] ?>">
+                    <input type="hidden" name="locked" value="<?= $t["locked"] ? 0 : 1 ?>">
+                    <button class="button" type="submit"><?= $t["locked"] ? "Unlock" : "Lock" ?></button>
+                </form>
+                <form method="post" action="/forum/deletethread" onsubmit="return confirm('Delete this whole thread?');">
+                    <input type="hidden" name="thread_id" value="<?= (int)$t["id"] ?>">
+                    <button class="button" type="submit">Delete thread</button>
+                </form>
+            </div>
+        <?php endif; ?>
+
+    <?php elseif (isset($view->forumCategory)): ?>
+        <?php $c = $view->forumCategory; ?>
+        <h1 class="largeTitle"><a href="/forum">Forum</a></h1>
+        <h1 class="title"><?= htmlspecialchars($c["name"]) ?></h1>
+        <div class="forum-desc"><?= htmlspecialchars($c["description"] ?? "") ?></div>
+
+        <table class="forum-list">
+            <tr><th>Thread</th><th>Started by</th><th>Replies</th></tr>
+            <?php foreach ($view->forumThreads as $t): ?>
+                <tr>
+                    <td>
+                        <?php if ($t["pinned"]): ?><span class="forum-pinned">PINNED</span><?php endif; ?>
+                        <a href="/forum/thread/<?= (int)$t["id"] ?>"><?= htmlspecialchars($t["title"]) ?></a>
+                        <?php if ($t["locked"]): ?><span class="forum-meta">(locked)</span><?php endif; ?>
+                    </td>
+                    <td><a href="/profile/<?= $t["profile_number"] ?>"><?= htmlspecialchars($t["authorName"] ?? "Unknown") ?></a></td>
+                    <td><?= (int)$t["post_count"] - 1 ?></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (empty($view->forumThreads)): ?>
+                <tr><td colspan="3" class="forum-meta">No threads yet.</td></tr>
+            <?php endif; ?>
+        </table>
+
+        <?php if (isset(SteamSignIn::$loggedInUser) && (!$c["admin_only_post"] || SteamSignIn::loggedInUserIsAdmin())): ?>
+            <form class="forum-form" method="post" action="/forum/newthread" style="margin-top: 25px;">
+                <input type="hidden" name="category_id" value="<?= (int)$c["id"] ?>">
+                <input type="text" name="title" placeholder="Thread title" required>
+                <textarea name="body" placeholder="Write your post..." required></textarea>
+                <button class="button" type="submit" style="margin-top: 10px;">Create thread</button>
+            </form>
+        <?php elseif (!isset(SteamSignIn::$loggedInUser)): ?>
+            <div class="forum-meta" style="margin-top: 15px;">Sign in with Steam to start a thread.</div>
+        <?php endif; ?>
+
+    <?php else: ?>
+        <h1 class="largeTitle">Forum</h1>
+        <table class="forum-list">
+            <tr><th>Category</th><th>Threads</th></tr>
+            <?php foreach ($view->forumCategories as $c): ?>
+                <tr>
+                    <td>
+                        <a href="/forum/category/<?= (int)$c["id"] ?>"><?= htmlspecialchars($c["name"]) ?></a>
+                        <div class="forum-desc"><?= htmlspecialchars($c["description"] ?? "") ?></div>
+                    </td>
+                    <td><?= (int)$c["thread_count"] ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    <?php endif; ?>
+</div>
