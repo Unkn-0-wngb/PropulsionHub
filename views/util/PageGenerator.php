@@ -2,15 +2,15 @@
 
 class PageGenerator {
 
-    static function generatePages($board, $entryCallback, $maxEntriesShown = PHP_INT_MAX, $entriesPerPage = 40) {
+    static function generatePages($board, $entryCallback, $maxEntriesShown = PHP_INT_MAX, $entriesPerPage = 40, $wrapper = true) {
         $keys = array_keys($board);
         $numEntries = min($maxEntriesShown, count($keys));
         $pages = ceil($numEntries / $entriesPerPage);
         $page = 1;
-        ?><div class="entries pages">
+        if ($wrapper) { ?><div class="entries pages"><?php } ?>
             <?php while ($page <= $pages): ?>
                 <div
-                <?php if ($page != 1): ?>
+                <?php if ($page != 1 || !$wrapper): ?>
                     class="datatable page-entries" style="display:none"
                 <?php else: ?>
                     class="datatable page-entries active"
@@ -22,7 +22,7 @@ class PageGenerator {
                     <?php $i++; endwhile; ?>
                 </div>
             <?php $page++; endwhile; ?>
-        </div><?php
-    }
+        <?php if ($wrapper) { ?></div><?php } ?>
+    <?php }
 
 }

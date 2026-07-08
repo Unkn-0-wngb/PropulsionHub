@@ -181,15 +181,14 @@
         }
     }
 
-    $(document).ready(function() {
+    function initEntries($entries) {
+        $entries.each(function() {
 
-        $(".entry").each(function() {
-            
             var $entry = $(this);
             var $preRank = $entry.find(".previousscore .rank");
             var $postRank = $entry.find(".newscore .rank");
             var $rankDiff = $entry.find(".rankImprovement")
-            
+
             var preRank = $preRank.find("i").length == 1 ? 1 : parseInt($preRank.text());
             var postRank = $postRank.find("i").length == 1 ? 1 : parseInt($postRank.text());
 
@@ -210,26 +209,74 @@
                     $(this).tooltip('hide');
                 });
             }
-        });
 
-        $(".checkbox").click(function() {
-            $(this).toggleClass("ticked");
-            var v = $(this).parent().find("input:eq(0)").val();
-            v = (v == 0 ? "1" : "");
-            $(this).parent().find("input:eq(0)").val(v);
-        });
-
-        $(".entry .date").each(function() {
-            var $dateTime = $(this).find(".dateTime");
-            var $dateDifference = $(this).find(".dateDifference");
-
-            var date = $(this).attr("date");
+            var $dateTime = $entry.find(".dateTime");
+            var $dateDifference = $entry.find(".dateDifference");
+            var date = $entry.find(".date").attr("date");
             if (date !== undefined && date !== "" && date !== null) {
                 formatDateDifferenceFromNow($dateDifference, date, true);
                 $dateTime.text(localizeDate(date, "ddd, YYYY-MM-DD, HH:mm:ss"));
             } else {
                 $dateTime.text("Unknown");
             }
+        });
+
+        $entries.find(".rank").each(function() {
+            drawRank($(this));
+        });
+    }
+
+    var CHANGELOG_ENTRIES_LOADED = <?=count($view->changelog)?>;
+    var CHANGELOG_BATCH_PAGES = 20;
+    var CHANGELOG_ENTRIES_PER_PAGE = 40;
+    var changelogLoadingMore = false;
+
+    function loadMoreChangelog() {
+        if (changelogLoadingMore) return;
+        changelogLoadingMore = true;
+
+        var params = new URLSearchParams(window.location.search);
+        params.set("offset", CHANGELOG_ENTRIES_LOADED);
+        params.set("limit", CHANGELOG_BATCH_PAGES * CHANGELOG_ENTRIES_PER_PAGE);
+        params.set("fragment", "1");
+
+        $.get("/changelog?" + params.toString(), function(html) {
+            changelogLoadingMore = false;
+
+            if (!html || $.trim(html) === "") {
+                return; // no more data -- stop chaining
+            }
+
+            var $newContent = $(html);
+            var $newEntries = $newContent.find(".entry");
+            if ($newEntries.length === 0) {
+                return;
+            }
+
+            $("#otherentries").append($newContent);
+            initEntries($newEntries);
+
+            CHANGELOG_ENTRIES_LOADED += $newEntries.length;
+
+            var lastPage = getLastPage($(".entries"));
+            var currentPage = $(".currentPageLabel").text().split(" / ")[0];
+            $(".currentPageLabel").text(currentPage + " / " + lastPage);
+
+            setTimeout(loadMoreChangelog, 500);
+        }).fail(function() {
+            changelogLoadingMore = false;
+        });
+    }
+
+    $(document).ready(function() {
+
+        initEntries($(".entry"));
+
+        $(".checkbox").click(function() {
+            $(this).toggleClass("ticked");
+            var v = $(this).parent().find("input:eq(0)").val();
+            v = (v == 0 ? "1" : "");
+            $(this).parent().find("input:eq(0)").val(v);
         });
 
         $(".controls .next").click(function() {
@@ -251,10 +298,6 @@
 
         //$("#otherentries").css("height", Math.min(25, <?=count($view->changelog)?>) * 42);
 
-        $(".rank").each(function() {
-            drawRank($(this));
-        });
-
         var activityByScore = getActivityByScore(<?=json_encode($activity)?>);
         if (Object.keys(activityByScore).length > 0) {
             let activityByDate = getActivityByDate(activityByScore);
@@ -263,6 +306,13 @@
             let startDate = (urlParams.get("startDate") ?? '') !== ''  ? urlParams.get("startDate") : localizeDate(getDateFirstChange(activityByDate));
             drawActivityChart(activityByDate, startDate, endDate, $("#changelogActivity"));
         }
+    });
+
+    $(window).on("load", function() {
+        // Initial render already sent the first 50 pages (2000 rows); once
+        // the page has fully loaded, keep fetching older data in the
+        // background, 20 pages (800 rows) at a time, until there's nothing left.
+        loadMoreChangelog();
     });
 
     function setBannedStatus(id, banStatus, clickEventTarget) {

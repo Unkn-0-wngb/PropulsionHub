@@ -747,7 +747,7 @@ a:hover, a:focus {
     line-height: 41px;
 }
 #changelog .date {
-    width: 276px;
+    width: 320px;
     padding-left: 20px;
     display: flex;
     align-items: center;
@@ -758,7 +758,7 @@ a:hover, a:focus {
     display: block;
 }
 #changelog .dateTime {
-    width: 152px;
+    width: 195px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

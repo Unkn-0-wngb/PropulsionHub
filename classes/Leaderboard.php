@@ -828,8 +828,11 @@ class Leaderboard
     //TODO: replace day amount with date range
     //TODO: allow for fetching scores of banned players
     //TODO: clean up ugly where clauses
-    public static function getChangelog($unsafe_parameters = array())
+    public static function getChangelog($unsafe_parameters = array(), $limit = 2000, $offset = 0)
     {
+        $limit = max(0, intval($limit));
+        $offset = max(0, intval($offset));
+
         $param = array(
             "chamber" => "",
             "chapter" => "",
@@ -976,8 +979,8 @@ class Leaderboard
                 AND chapters.id LIKE ?
                 AND IFNULL(usersnew.boardname, usersnew.steamname) LIKE ?
                 ORDER BY time_gained DESC, score ASC, profile_number ASC
-                LIMIT 2000",
-            "{$whereTypes}ssssss",
+                LIMIT ? OFFSET ?",
+            "{$whereTypes}ssssssii",
             [
                 ...$whereParams,
                 "%{$param['chamber']}%",
@@ -986,6 +989,8 @@ class Leaderboard
                 "%{$param['type']}%",
                 "%{$param['chapter']}%",
                 "%{$param['boardName']}%",
+                $limit,
+                $offset,
             ],
         );
 

@@ -50,7 +50,7 @@ RUN ln -s /etc/apache2/sites-available/${SERVER_NAME}.conf /etc/apache2/sites-en
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
 # enable cron jobs
-RUN echo '*/1 * * * * www-data curl -Lk localhost/api/refreshCache.php > /dev/null 2>&1' > /etc/cron.d/board && echo '*/15 * * * * www-data flock -n /tmp/fetchNewScores.lock curl -Lk localhost/api/fetchNewScores.php > /dev/null 2>&1' >> /etc/cron.d/board
+RUN echo '*/1 * * * * www-data curl -Lk localhost/api/refreshCache.php > /dev/null 2>&1' > /etc/cron.d/board && echo '* * * * * www-data flock -n /tmp/fetchNewScores.lock curl -Lk localhost/api/fetchNewScores.php > /dev/null 2>&1' >> /etc/cron.d/board
 #RUN echo '0 0 */4 * * www-data php -f /var/www/html/util/fetchImportantProfileData.php > /dev/null 2>&1' >> /etc/cron.d/board
 
 EXPOSE 80 443

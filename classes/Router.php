@@ -837,7 +837,18 @@ class Router {
 
             $param = $this->prepareChangelogParams($changelogParams);
 
-            $view->changelog = Leaderboard::getChangelog($param);
+            $offset = isset($_GET["offset"]) && is_numeric($_GET["offset"]) ? intval($_GET["offset"]) : 0;
+            $limit = isset($_GET["limit"]) && is_numeric($_GET["limit"]) ? min(2000, intval($_GET["limit"])) : 2000;
+            $view->changelog = Leaderboard::getChangelog($param, $limit, $offset);
+
+            if (isset($_GET["fragment"])) {
+                include_once(ROOT_PATH . "/views/util/PageGenerator.php");
+                include_once(ROOT_PATH . "/views/util/ChangelogView.php");
+                if (!empty($view->changelog)) {
+                    PageGenerator::generatePages($view->changelog, array("ChangelogView", "getEntry"), PHP_INT_MAX, 40, false);
+                }
+                exit;
+            }
 
             if (isset($location[2]) && $location[2] == "json") {
                 header("Content-Type: application/json");
