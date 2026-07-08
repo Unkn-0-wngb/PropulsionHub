@@ -702,6 +702,9 @@ a:hover, a:focus {
     font-family: Tahoma, Segoe UI;
     color: #7b7b7b;
 }
+#changelog #entries {
+    position: relative;
+}
 #changelog #firstentry, .datatable #firstentry {
     background: #dadada;
     border-top: 2px solid #5597bd;
@@ -1825,7 +1828,7 @@ html[class="dark"] #profile .usericons .fa-play:hover {
 #changelog .controls {
     position: absolute;
     margin-top: 9px;
-    left: 77px;
+    left: 316px;
 }
 .controls {
     color: #888888;

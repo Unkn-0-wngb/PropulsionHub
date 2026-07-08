@@ -4,11 +4,9 @@ class MdpManager {
     const mdpBinary = "/usr/bin/mdp";
     const mdpFiles = ROOT_PATH . "/util/mdp";
 
-    // Executes CLI version of Mdp and dumps files into specified discord channels
+    // Executes CLI version of Mdp
     public static function Execute($demoPath, $demoDetails) {
         //Debug::log("Attempting to execute mdp for $demoPath");
-        $demoName = substr($demoPath, strrpos( $demoPath, '/')+1, strlen($demoPath));
-        //Debug::log("Demo Name:  $demoName");
         $cmd = MdpManager::mdpBinary . " " . $demoPath;
         //Debug::log("CMD: $cmd");
         $stdout = null;
