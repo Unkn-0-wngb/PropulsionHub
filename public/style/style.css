@@ -749,12 +749,24 @@ a:hover, a:focus {
 #changelog .date {
     width: 276px;
     padding-left: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+#changelog .date > div {
+    display: block;
 }
 #changelog .dateTime {
     width: 152px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
 }
 #changelog .dateDifference {
-    margin-left: 10px;
+    margin-left: 0;
+    white-space: nowrap;
 }
 #changelog .profileIcon  {
     padding-top: 3px;
@@ -774,6 +786,7 @@ a:hover, a:focus {
     overflow: hidden;
     white-space: nowrap;
     margin-right: 30px;
+    text-align: center;
 }
 #changelog #entries .rank {
     width: 50%;
@@ -794,24 +807,23 @@ a:hover, a:focus {
 }
 #changelog .map {
     width: 140px;
+    text-align: center;
 }
 #changelog .chapter {
     width: 135px;
+    text-align: center;
 }
 #changelog .newscore {
     width: 95px;
     text-align: center;
-    padding-right: 27px;
 }
 #changelog .previousscore {
     width: 100px;
     text-align: center;
-    padding-right: 27px;
 }
 #changelog .improvement {
     width: 103px;
     text-align: center;
-    padding-right: 15px;
 }
 #changelog .worldrecord {
     width: 88px;
