@@ -975,7 +975,8 @@ class Leaderboard
                 AND maps.is_coop LIKE ?
                 AND chapters.id LIKE ?
                 AND IFNULL(usersnew.boardname, usersnew.steamname) LIKE ?
-                ORDER BY time_gained DESC, score ASC, profile_number ASC",
+                ORDER BY time_gained DESC, score ASC, profile_number ASC
+                LIMIT 2000",
             "{$whereTypes}ssssss",
             [
                 ...$whereParams,
