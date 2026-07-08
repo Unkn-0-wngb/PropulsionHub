@@ -586,6 +586,65 @@ class Router {
             exit;
         }
 
+        if ($location[1] == "voteScore") {
+            header('Content-Type: application/json');
+
+            if (!isset($_POST["id"]) || !is_numeric($_POST["id"]) || !isset($_POST["vote"])) {
+                echo json_encode(["error" => "Missing or invalid post data"]);
+                exit;
+            }
+
+            if (!isset(SteamSignIn::$loggedInUser)) {
+                echo json_encode(["error" => "You must be logged in to vote"]);
+                exit;
+            }
+
+            $changelogId = intval($_POST["id"]);
+            $vote = intval($_POST["vote"]) ? 1 : 0;
+
+            $change = Leaderboard::getChange($changelogId);
+            if (!$change) {
+                echo json_encode(["error" => "Run not found"]);
+                exit;
+            }
+
+            if (SteamSignIn::isLoggedIn($change["profile_number"])) {
+                echo json_encode(["error" => "You cannot vote on your own run"]);
+                exit;
+            }
+
+            Database::query(
+                "INSERT INTO score_votes (changelog_id, profile_number, vote)
+                 VALUES (?, ?, ?)
+                 ON DUPLICATE KEY UPDATE vote = ?",
+                "issi",
+                [
+                    $changelogId,
+                    SteamSignIn::$loggedInUser->profileNumber,
+                    $vote,
+                    $vote,
+                ]
+            );
+
+            $tally = Leaderboard::getVoteTally($changelogId);
+
+            if ($change["pending"] == 1 && Leaderboard::voteMeetsThreshold($tally)) {
+                Database::query(
+                    "UPDATE changelog SET pending = 0 WHERE id = ?",
+                    "i",
+                    [$changelogId]
+                );
+            }
+
+            $updatedChange = Leaderboard::getChange($changelogId);
+            echo json_encode([
+                "success" => true,
+                "tally" => $tally,
+                "pending" => intval($updatedChange["pending"]),
+            ]);
+            exit;
+        }
+
         if ($location[1] == "fetchNewChamberScores") {
             if (isset($_POST["chamber"])) {
 
@@ -781,6 +840,27 @@ class Router {
 
             echo "invalid api";
             exit;
+        }
+
+        if ($location[1] == "evidence" && isset($location[2])) {
+            if (!is_numeric($location[2])) {
+                $this->routeTo404();
+            } else {
+                $change = Leaderboard::getChange(intval($location[2]));
+                if (!$change) {
+                    $this->routeTo404();
+                } else {
+                    $view->evidenceChange = $change;
+                    $view->isOwner = isset(SteamSignIn::$loggedInUser) && SteamSignIn::hasProfilePrivileges($change["profile_number"]);
+                    $view->isAdmin = SteamSignIn::loggedInUserIsAdmin();
+                    $view->voteTally = Leaderboard::getVoteTally($change["id"]);
+                    $view->userVote = isset(SteamSignIn::$loggedInUser)
+                        ? Leaderboard::getUserVote($change["id"], SteamSignIn::$loggedInUser->profileNumber)
+                        : null;
+                    $view->voteThreshold = Leaderboard::voteValidThreshold;
+                    View::$pageData["pageTitle"] = "Evidence - " . $change["chamberName"];
+                }
+            }
         }
 
         if ($location[1] == "chambers" && isset($location[2])) {

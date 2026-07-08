@@ -112,6 +112,11 @@ class View {
             "pageTitle" => "Edit profile",
             "js" => [self::clipboardJs],
         ),
+        "evidence" => array(
+            "contentTemplate" => "evidence.phtml",
+            "pageTitle" => "Evidence",
+            "js" => array(self::youtubeEmbed),
+        ),
         "about" => array(
             "contentTemplate" => "about.phtml",
             "pageTitle" => "About"
@@ -151,7 +156,7 @@ class View {
         ]);
 
         $this->addJs(["/js/popover.js"]);
-        $this->addCss(["/style/style.css?v=1.2"]);
+        $this->addCss(["/style/style.css?v=1.3"]);
         $this->addCss(["/style/branding.css?v=0.6"]);
         $this->addCss(["/style/responsive.css?v=0.5"]);
     }

@@ -2374,3 +2374,59 @@ html[class="dark"] #about a{
 html[class="dark"] code {
     background-color: #202225;
 }
+
+/*EVIDENCE*/
+
+#evidence {
+    font-family: Segoe UI;
+    margin: 30px 0px 0px 42px;
+}
+#evidence .largeTitle {
+    font-family: "Aperture";
+    font-size: 40px;
+    color: #3e88b3;
+    text-transform: uppercase;
+}
+#evidence .container {
+    margin-bottom: 30px;
+    font-size: 16px;
+    color: #444;
+    width: calc(100% - 45px);
+    padding-left: 0px;
+    margin-left: 0px;
+}
+#evidence .container h2 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+#evidence .container form {
+    margin-bottom: 15px;
+}
+#evidence .button {
+    display: inline-block;
+    background: #f7931e;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 10px;
+}
+#evidence .button:hover {
+    opacity: 0.9;
+}
+#evidence .button.active {
+    box-shadow: 0 0 0 2px #3e88b3 inset;
+}
+#evidence #evidenceVoteInvalid {
+    background: #888;
+}
+html[class="dark"] #evidence .container, html[class="dark"] #evidence td {
+    color: #fff;
+}
+html[class="dark"] #evidence a {
+    color: #fff;
+    font-weight: bold;
+}

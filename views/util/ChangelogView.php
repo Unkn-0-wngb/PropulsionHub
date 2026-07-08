@@ -113,7 +113,9 @@ class ChangelogView
             </div>
             <?php if ($val["pending"] == 1): ?>
             <div class="submission">
-                <i class="fa fa-hourglass" aria-hidden="true" data-toggle="tooltip" title="Pending - evidence required"></i>
+                <a href="/evidence/<?=$val["id"]?>">
+                    <i class="fa fa-hourglass" aria-hidden="true" data-toggle="tooltip" title="Pending - evidence required. Click to view."></i>
+                </a>
             </div>
             <?php endif; ?>
             <div class="banScore" >

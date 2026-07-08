@@ -1033,6 +1033,40 @@ class Leaderboard
         return $changelog[0];
     }
 
+    const voteValidThreshold = 5;
+
+    public static function getVoteTally($changelogId) {
+        $data = Database::query(
+            "SELECT vote, COUNT(*) as cnt FROM score_votes WHERE changelog_id = ? GROUP BY vote",
+            "i",
+            [$changelogId]
+        );
+        $tally = ["valid" => 0, "invalid" => 0];
+        while ($row = $data->fetch_assoc()) {
+            if (intval($row["vote"]) == 1) {
+                $tally["valid"] = intval($row["cnt"]);
+            } else {
+                $tally["invalid"] = intval($row["cnt"]);
+            }
+        }
+        return $tally;
+    }
+
+    public static function getUserVote($changelogId, $profileNumber) {
+        $data = Database::query(
+            "SELECT vote FROM score_votes WHERE changelog_id = ? AND profile_number = ?",
+            "is",
+            [$changelogId, $profileNumber]
+        );
+        $row = $data->fetch_assoc();
+        return $row ? intval($row["vote"]) : null;
+    }
+
+    public static function voteMeetsThreshold($tally) {
+        return $tally["valid"] >= self::voteValidThreshold
+            && $tally["valid"] >= self::voteValidThreshold * $tally["invalid"];
+    }
+
     public static function getYoutubeIDs(int $mode) {
         $data = Database::query(
             "SELECT changelog.profile_number as profileNumber
