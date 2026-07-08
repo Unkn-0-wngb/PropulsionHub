@@ -1020,7 +1020,7 @@ html[class="dark"] #profile .userinformation .general-wrapper .banToggleButton:h
     /*width: calc(100% - 15px);*/
     margin-bottom: 10px;
     /*padding-left: 15px;*/
-    height: 130px;
+    min-height: 130px;
     margin-top: 3px;
 }
 #profile .global-stats .block {
@@ -1051,7 +1051,11 @@ html[class="dark"] #profile .userinformation .general-wrapper .banToggleButton:h
     width: 16%;
 }
 #profile .global-stats .block-container.ranks {
-    width: 15%;
+    width: 17%;
+}
+#profile .global-stats .block-container.ranks .number {
+    font-size: 22px;
+    max-width: 60px;
 }
 #profile .global-stats .block-container.bestworst .title{
     width: 116px;
