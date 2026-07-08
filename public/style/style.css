@@ -1889,6 +1889,26 @@ html[class="dark"] #profile .usericons .fa-play:hover {
     vertical-align: middle;
     text-align: center;
 }
+.controls .pageInput {
+    width: 32px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    text-align: right;
+    padding: 0;
+    -moz-appearance: textfield;
+}
+.controls .pageInput::-webkit-outer-spin-button,
+.controls .pageInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.controls .pageInput:focus {
+    outline: none;
+    text-decoration: underline;
+}
 .controls .button.previous span.name,.controls span.currentPageLabel {
     padding-left: 8px;
 }

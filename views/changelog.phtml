@@ -144,7 +144,10 @@
                     <!--				<span class="name">Newer</span>-->
                     <span class="icon"><i class="fa fa-caret-left fa-3x" aria-hidden="true"></i></span>
                 </div>
-                <span class="currentPageLabel"></span>
+                <span class="currentPageLabel">
+                    <input type="number" class="pageInput" min="1" step="1" value="1">
+                    / <span class="lastPageLabel">1</span>
+                </span>
                 <div class="button next">
                     <span class="icon"><i class="fa fa-caret-right fa-3x" aria-hidden="true"></i></span>
                     <!--				<span class="name">Older</span>-->
@@ -230,6 +233,32 @@
     var CHANGELOG_BATCH_PAGES = 20;
     var CHANGELOG_ENTRIES_PER_PAGE = 40;
     var changelogLoadingMore = false;
+    var changelogActivityData = <?=json_encode($activity)?>;
+
+    function updatePageLabel(currentPage, lastPage) {
+        var $label = $(".currentPageLabel");
+        $label.find(".pageInput").attr("max", lastPage).val(currentPage);
+        $label.find(".lastPageLabel").text(lastPage);
+        $label.css("width", 40 + (2 * (Math.floor(Math.log(Math.max(2, lastPage)) / Math.LN10) + 1) * 7));
+    }
+
+    function goToPage(pageNumber) {
+        var lastPage = getLastPage($(".entries"));
+        pageNumber = Math.min(lastPage, Math.max(1, parseInt(pageNumber) || 1));
+        showPage(pageNumber - 1, $(".entries"));
+        updatePageLabel(pageNumber, lastPage);
+    }
+
+    function redrawActivityChart() {
+        var activityByScore = getActivityByScore(changelogActivityData);
+        if (Object.keys(activityByScore).length > 0) {
+            let activityByDate = getActivityByDate(activityByScore);
+            const urlParams = new URLSearchParams(window.location.search);
+            let endDate = (urlParams.get("endDate") ?? '') !== '' ? urlParams.get("endDate") : getCurrentLocalDate();
+            let startDate = (urlParams.get("startDate") ?? '') !== '' ? urlParams.get("startDate") : localizeDate(getDateFirstChange(activityByDate));
+            drawActivityChart(activityByDate, startDate, endDate, $("#changelogActivity"));
+        }
+    }
 
     function loadMoreChangelog() {
         if (changelogLoadingMore) return;
@@ -253,14 +282,24 @@
                 return;
             }
 
-            $("#otherentries").append($newContent);
+            var $batchData = $newContent.filter(".changelog-batch-data").add($newContent.find(".changelog-batch-data"));
+            if ($batchData.length > 0) {
+                try {
+                    var batchActivity = JSON.parse($batchData.first().text());
+                    changelogActivityData = changelogActivityData.concat(batchActivity);
+                } catch (e) {}
+                $batchData.remove();
+            }
+
+            $(".entries").append($newContent);
             initEntries($newEntries);
 
             CHANGELOG_ENTRIES_LOADED += $newEntries.length;
 
             var lastPage = getLastPage($(".entries"));
-            var currentPage = $(".currentPageLabel").text().split(" / ")[0];
-            $(".currentPageLabel").text(currentPage + " / " + lastPage);
+            var currentPage = parseInt($(".pageInput").val()) || 1;
+            updatePageLabel(currentPage, lastPage);
+            redrawActivityChart();
 
             setTimeout(loadMoreChangelog, 500);
         }).fail(function() {
@@ -282,30 +321,31 @@
         $(".controls .next").click(function() {
             var page = nextPage($(".entries"));
             var lastPage = getLastPage($(".entries"));
-            $(".currentPageLabel").text(page + " / " + lastPage);
+            updatePageLabel(page, lastPage);
         });
 
         $(".controls .previous").click(function() {
             var page = previousPage($(".entries"));
             var lastPage = getLastPage($(".entries"));
-            $(".currentPageLabel").text(page + " / " + lastPage);
+            updatePageLabel(page, lastPage);
+        });
+
+        $(".pageInput").on("keydown", function(e) {
+            if (e.key === "Enter") {
+                goToPage($(this).val());
+            }
+        }).on("blur", function() {
+            goToPage($(this).val());
+        }).on("click", function(e) {
+            e.stopPropagation();
         });
 
         var lastPage = getLastPage($(".entries"));
-        $(".currentPageLabel")
-            .text(Math.min(1, lastPage) + " / " + lastPage)
-            .css("width", 20 + (2 * (Math.floor(Math.log(Math.max(2, lastPage)) / Math.LN10) + 1) * 7));
+        updatePageLabel(Math.min(1, lastPage), lastPage);
 
         //$("#otherentries").css("height", Math.min(25, <?=count($view->changelog)?>) * 42);
 
-        var activityByScore = getActivityByScore(<?=json_encode($activity)?>);
-        if (Object.keys(activityByScore).length > 0) {
-            let activityByDate = getActivityByDate(activityByScore);
-            const urlParams = new URLSearchParams(window.location.search);
-            let endDate = (urlParams.get("endDate") ?? '') !== ''  ? urlParams.get("endDate") : getCurrentLocalDate();
-            let startDate = (urlParams.get("startDate") ?? '') !== ''  ? urlParams.get("startDate") : localizeDate(getDateFirstChange(activityByDate));
-            drawActivityChart(activityByDate, startDate, endDate, $("#changelogActivity"));
-        }
+        redrawActivityChart();
     });
 
     $(window).on("load", function() {

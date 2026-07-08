@@ -847,6 +847,10 @@ class Router {
                 if (!empty($view->changelog)) {
                     PageGenerator::generatePages($view->changelog, array("ChangelogView", "getEntry"), PHP_INT_MAX, 40, false);
                 }
+                $batchActivity = array_values(array_filter($view->changelog, function($change) {
+                    return $change["time_gained"] != NULL && $change["banned"] != 1;
+                }));
+                echo '<script type="application/json" class="changelog-batch-data">' . json_encode($batchActivity) . '</script>';
                 exit;
             }
 

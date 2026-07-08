@@ -282,6 +282,13 @@ class Leaderboard
                         foreach ($val2 as $d => $b) {
                             $steamid = $b->steamid;
                             $score = $b->score;
+                            // Steam's leaderboard occasionally contains glitched/exploited entries
+                            // (e.g. integer-underflow scores like -2147483648, or 0) -- these aren't
+                            // real times and would otherwise poison world-record/rank calculations.
+                            if (intval($score) <= 0 || intval($score) > 3600000) {
+                                Debug::log("Skipping out-of-range score for map: " . $mapID . " steamid: " . $steamid . " score: " . $score);
+                                continue;
+                            }
                             $leaderboard[$mapID][(string)$steamid] = (string)$score;
                             //Debug::log("map ID: " . $mapID . " player steam id: " . $steamid . " score: " . $score);
                         }
