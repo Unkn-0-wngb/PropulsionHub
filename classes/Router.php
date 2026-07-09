@@ -570,15 +570,25 @@ class Router {
                 }
 
                 if (SteamSignIn::loggedInUserIsAdmin()) {
+                    $changelogId = intval($_POST['id']);
                     Database::query(
                         "UPDATE changelog
                          SET pending = 0
                          WHERE changelog.id = ?",
                         "i",
                         [
-                            intval($_POST['id']),
+                            $changelogId,
                         ]
                     );
+
+                    $change = Leaderboard::getChange($changelogId);
+                    if ($change) {
+                        // pending=0 alone doesn't put this back on the board -- the
+                        // scores table (what getBoard() actually ranks against) only
+                        // points at a player's best *non-pending* changelog row, and
+                        // this one was very likely excluded from it while pending.
+                        Leaderboard::resolveScore(strval($change["profile_number"]), strval($change["mapid"]));
+                    }
                 }
             } else {
                 echo "Missing post data!";
@@ -634,6 +644,7 @@ class Router {
                     "i",
                     [$changelogId]
                 );
+                Leaderboard::resolveScore(strval($change["profile_number"]), strval($change["mapid"]));
             }
 
             $updatedChange = Leaderboard::getChange($changelogId);

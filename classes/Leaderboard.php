@@ -831,6 +831,17 @@ class Leaderboard
         }
     }
 
+    // Refreshes just the cached board for a single chamber. Called right after
+    // any write that can change what's ranked/visible for that map (a new
+    // score landing, a ban toggle, evidence being attached, a vote resolving
+    // pending status, etc.) so the change shows up on the live chamber page
+    // immediately instead of waiting for the next scheduled full-site
+    // cacheLeaderboard() run.
+    public static function refreshChamberCache(string $mapId) {
+        $board = self::getBoard(array("chamber" => $mapId));
+        self::cacheChamberBoards($board);
+    }
+
     //TODO: remove limitation on characters used in parameters
     //TODO: replace day amount with date range
     //TODO: allow for fetching scores of banned players
@@ -1575,6 +1586,8 @@ class Leaderboard
             if (Database::affectedRows() > 0)
                 Debug::log("Deleted score for id: {$profileNumber}, map: {$mapId}");
         }
+
+        self::refreshChamberCache($mapId);
     }
 
     public static function submitChange(
@@ -1874,6 +1887,8 @@ class Leaderboard
                 $chamber,
             ]
         );
+
+        self::refreshChamberCache($chamber);
     }
 
     public static function getLatestPb(string $profile_number, string $map_id) {
