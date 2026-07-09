@@ -180,6 +180,12 @@ class Router {
                     true
                 );
 
+                if ($id === null) {
+                    echo "Score rejected - not a plausible completion time";
+                    http_response_code(400);
+                    exit;
+                }
+
                 if (array_key_exists("demoFile", $_FILES)) {
                     $file = $_FILES["demoFile"];
                     if ($file["name"] != "") {
@@ -526,6 +532,12 @@ class Router {
                         $_POST["comment"],
                         false
                     );
+
+                    if ($id === null) {
+                        header("Content-Type: application/json");
+                        echo json_encode(["error" => "Score rejected - not a plausible completion time"]);
+                        exit;
+                    }
 
                     if (array_key_exists("demoFile", $_FILES)) {
                         $file = $_FILES["demoFile"];

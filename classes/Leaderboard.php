@@ -282,10 +282,12 @@ class Leaderboard
                         foreach ($val2 as $d => $b) {
                             $steamid = $b->steamid;
                             $score = $b->score;
-                            // Steam's leaderboard occasionally contains glitched/exploited entries
-                            // (e.g. integer-underflow scores like -2147483648, or 0) -- these aren't
-                            // real times and would otherwise poison world-record/rank calculations.
-                            if (intval($score) <= 0 || intval($score) > 3600000) {
+                            // Steam's leaderboard occasionally contains glitched/exploited entries:
+                            // integer-underflow scores like -2147483648 or 0, but also small positive
+                            // values like 1-30 (0.01-0.30 seconds) that are physically impossible to
+                            // actually complete a chamber in. 100 (1 second) is a conservative floor --
+                            // safely below any real completion time, safely above the observed garbage.
+                            if (intval($score) < self::minPlausibleScore || intval($score) > self::maxPlausibleScore) {
                                 Debug::log("Skipping out-of-range score for map: " . $mapID . " steamid: " . $steamid . " score: " . $score);
                                 continue;
                             }
@@ -1590,15 +1592,24 @@ class Leaderboard
         self::refreshChamberCache($mapId);
     }
 
+    const minPlausibleScore = 100; // 1 second -- see the matching check in getNewScores()
+    const maxPlausibleScore = 3600000; // 10 hours
+
     public static function submitChange(
         string $profileNumber,
         string $chamber,
         int $score,
         ?string $youtubeID,
         ?string $comment,
-        bool $auto)
+        bool $auto): ?int
     {
         Debug::log("Starting Submit Change");
+
+        if ($score < self::minPlausibleScore || $score > self::maxPlausibleScore) {
+            Debug::log("Rejecting implausible submitted score: " . $score);
+            return null;
+        }
+
         $maps = Cache::get("maps");
         $chapter = $maps["maps"][$chamber]["chapterId"];
 
