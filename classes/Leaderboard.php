@@ -593,7 +593,7 @@ class Leaderboard
 
     //TODO: remove limitation on characters used in parameters
     //TODO: remove indexing by chapter id. Chamber id is sufficient.
-    public static function getBoard($unsafe_parameters = array())
+    public static function getBoard($unsafe_parameters = array(), $maxRank = 999999999)
     {
         $param = array("chamber" => "" , "mode" => "", "pending" => "");
 
@@ -681,7 +681,7 @@ class Leaderboard
                 "%{$param["mode"]}%",
                 "%{$param["chamber"]}",
                 "%{$param["pending"]}%",
-                self::numTrackedPlayerRanks,
+                $maxRank,
             ]
         );
 
