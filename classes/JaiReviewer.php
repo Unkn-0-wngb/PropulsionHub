@@ -92,9 +92,9 @@ final class JaiReviewer {
 
         $lines = [];
         $lines[] = "Chamber: " . $change["chamberName"];
-        $lines[] = "Current world record on this chamber: " . ($mapStats && $mapStats["wr"] !== null ? Leaderboard::convertToTime(intval($mapStats["wr"])) : "no verified times yet");
+        $lines[] = "Current world record on this chamber (elite-tier floor, NOT a ceiling on legitimate times): " . ($mapStats && $mapStats["wr"] !== null ? Leaderboard::convertToTime(intval($mapStats["wr"])) : "no verified times yet");
         $lines[] = "Sample size of verified times on this chamber: " . ($mapStats ? $mapStats["sampleSize"] : 0);
-        $lines[] = "10 fastest verified times on this chamber: " . (count($fastest) ? implode(", ", $fastest) : "none yet");
+        $lines[] = "10 fastest verified times on this chamber (for reference only -- a submitted time being slower than all of these is completely normal and never suspicious): " . (count($fastest) ? implode(", ", $fastest) : "none yet");
         $lines[] = "";
         $lines[] = "Run under review: " . Leaderboard::convertToTime(intval($change["score"])) . " by " . $change["playerName"];
         $lines[] = "Has demo attached: " . ($change["has_demo"] ? "yes" : "no");
@@ -119,10 +119,12 @@ final class JaiReviewer {
         $systemPrompt = <<<PROMPT
 You are JAI, the anti-cheat reviewer for a small personal Portal 2 Challenge Mode speedrun leaderboard. You review one submitted run at a time and decide how it should be handled.
 
+CRITICAL RULE: cheating in this game only ever makes a time *faster* than physically possible. A time can NEVER be flagged or revoked for being too SLOW -- a slow time is always just a normal, unremarkable, legitimate completion, no matter how it compares to the world record or to other players' times. The "current world record" and "fastest verified times" given to you below are the BEST (hardest-to-beat, elite-tier) times on that chamber -- they are a floor showing what's physically achievable at best, not a ceiling on legitimate times. Only ever question a run because it is suspiciously FAST (at or near/below that floor in an implausible way), never because it is far above/slower than it. If the submitted time is slower than the world record, that alone is never a reason to flag or revoke it.
+
 You have exactly three possible verdicts for the RUN itself:
-- "approve": this time is plausible for a skilled human speedrunner on this chamber. The run goes live on the public leaderboard immediately, labeled "Approved by JAI".
-- "flag": you are not confident either way -- accept the submission but hold it back for a human admin to manually sign off. Labeled "Flagged by JAI". Use this when a time is unusually fast but not obviously impossible, or when you lack enough context to be sure.
-- "revoke": this time is not humanly possible or is otherwise clearly fake (e.g. the exact same time repeating across unrelated chambers, which is the signature of a cheat tool producing a fixed output rather than a real run). This hides only this one run, labeled "Revoked by JAI". It does NOT ban the player's account.
+- "approve": this time is plausible for a human on this chamber -- this includes essentially all slower/average times, not just skilled-speedrunner-tier ones. The run goes live on the public leaderboard immediately, labeled "Approved by JAI".
+- "flag": the time is suspiciously FAST (near or below the world record in a way that's hard to explain) but not obviously impossible -- accept the submission but hold it back for a human admin to manually sign off. Labeled "Flagged by JAI". Use this only when a time is unusually fast, or when you lack enough context to judge a fast time. Never use this for a slow time.
+- "revoke": this time is not humanly possible (i.e. faster than any human could plausibly complete the chamber) or is otherwise clearly fake (e.g. the exact same time repeating across unrelated chambers, which is the signature of a cheat tool producing a fixed output rather than a real run). This hides only this one run, labeled "Revoked by JAI". It does NOT ban the player's account. Never revoke a run for being slow.
 
 You can ALSO independently decide:
 - "warn_player": true if this specific run looks like cheating and the player should get a warning banner on their profile. Only meaningful the first time -- if they already have a prior warning, the system escalates to admin ban review automatically regardless of what you set here.
