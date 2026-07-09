@@ -910,7 +910,19 @@ class Router {
         if ($location[1] == "changelog") {
 
             if (!$_GET) {
-                $changelogParams = array("startDate" => (new DateTime('NOW - 7 day'))->format('Y-m-d'), "pending" => "2");
+                // Default view: this calendar week, Monday through Saturday.
+                $now = new DateTime('now');
+                $dayOfWeek = (int)$now->format('N'); // 1 (Mon) .. 7 (Sun)
+                $monday = (clone $now)->modify('-' . ($dayOfWeek - 1) . ' days');
+                // endDate is compared as "time_gained <= DATE(endDate)" i.e. midnight at the
+                // *start* of that day, so pass the day after Saturday to avoid cutting off
+                // Saturday's own entries.
+                $sundayExclusive = (clone $monday)->modify('+6 days');
+                $changelogParams = array(
+                    "startDate" => $monday->format('Y-m-d'),
+                    "endDate" => $sundayExclusive->format('Y-m-d'),
+                    "pending" => "2",
+                );
             } else {
                 $changelogParams = $_GET;
             }
