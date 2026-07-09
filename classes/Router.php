@@ -497,6 +497,7 @@ class Router {
 
                 if (SteamSignIn::loggedInUserIsAdmin()) {
                     Leaderboard::setScoreBanStatus(intval($_POST["id"]), intval($_POST["banStatus"]));
+                    Leaderboard::markAdminReviewed(intval($_POST["id"]), SteamSignIn::$loggedInUser->profileNumber);
                 }
             } else {
                 echo "Missing post data!";
@@ -582,26 +583,39 @@ class Router {
                 }
 
                 if (SteamSignIn::loggedInUserIsAdmin()) {
-                    $changelogId = intval($_POST['id']);
-                    Database::query(
-                        "UPDATE changelog
-                         SET pending = 0
-                         WHERE changelog.id = ?",
-                        "i",
-                        [
-                            $changelogId,
-                        ]
-                    );
-
-                    $change = Leaderboard::getChange($changelogId);
-                    if ($change) {
-                        // pending=0 alone doesn't put this back on the board -- the
-                        // scores table (what getBoard() actually ranks against) only
-                        // points at a player's best *non-pending* changelog row, and
-                        // this one was very likely excluded from it while pending.
-                        Leaderboard::resolveScore(strval($change["profile_number"]), strval($change["mapid"]));
-                    }
+                    Leaderboard::verifyRun(intval($_POST['id']));
+                    Leaderboard::markAdminReviewed(intval($_POST['id']), SteamSignIn::$loggedInUser->profileNumber);
                 }
+            } else {
+                echo "Missing post data!";
+            }
+            exit;
+        }
+
+        if ($location[1] == "requestManualReview") {
+            if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
+                $change = Leaderboard::getChange(intval($_POST["id"]));
+                if ($change && isset(SteamSignIn::$loggedInUser) && SteamSignIn::isLoggedIn($change["profile_number"])) {
+                    Leaderboard::requestManualReview(intval($_POST["id"]));
+                }
+            } else {
+                echo "Missing post data!";
+            }
+            exit;
+        }
+
+        if ($location[1] == "jaiClearBanReview") {
+            if (isset($_POST["profileNumber"]) && SteamSignIn::loggedInUserIsAdmin()) {
+                Leaderboard::clearBanReviewRequest(strval($_POST["profileNumber"]));
+            } else {
+                echo "Missing post data!";
+            }
+            exit;
+        }
+
+        if ($location[1] == "jaiResolveManualReview") {
+            if (isset($_POST["id"]) && is_numeric($_POST["id"]) && SteamSignIn::loggedInUserIsAdmin()) {
+                Leaderboard::resolveManualReview(intval($_POST["id"]));
             } else {
                 echo "Missing post data!";
             }
@@ -866,6 +880,17 @@ class Router {
                 exit;
             }
 
+            if ($location[2] === "jaiReview.php") {
+                Debug::initializeFileLogging();
+                Debug::$loggingToOutput = true;
+
+                ini_set('memory_limit', '-1');
+                set_time_limit(120);
+
+                JaiReviewer::reviewNext();
+                exit;
+            }
+
             echo "invalid api";
             exit;
         }
@@ -1100,6 +1125,52 @@ class Router {
                 header("Content-Type: application/json");
                 echo json_encode($view->wallofshame);
                 exit;
+            }
+        }
+
+        if ($location[1] == "jaiqueue") {
+            if (!SteamSignIn::loggedInUserIsAdmin()) {
+                $this->routeTo404();
+            } else {
+                $banReviewData = Database::unsafe_raw(
+                    "SELECT profile_number
+                          , avatar
+                          , IFNULL(boardname, steamname) as playername
+                          , jai_ban_reasoning
+                          , DATE_FORMAT(jai_ban_review_requested_at, '%Y-%m-%d %H:%i') as requestedAt
+                     FROM usersnew
+                     WHERE jai_ban_review_requested_at IS NOT NULL
+                     AND banned = 0
+                     ORDER BY jai_ban_review_requested_at DESC"
+                );
+                $view->banReviewQueue = array();
+                while ($row = $banReviewData->fetch_assoc()) {
+                    $row["playername"] = htmlspecialchars($row["playername"]);
+                    $view->banReviewQueue[] = $row;
+                }
+
+                $manualReviewData = Database::unsafe_raw(
+                    "SELECT ch.id
+                          , ch.score
+                          , ch.jai_verdict
+                          , ch.jai_reasoning
+                          , DATE_FORMAT(ch.manual_review_requested_at, '%Y-%m-%d %H:%i') as requestedAt
+                          , maps.name as chamberName
+                          , IFNULL(usersnew.boardname, usersnew.steamname) as playername
+                     FROM changelog ch
+                     INNER JOIN maps ON ch.map_id = maps.steam_id
+                     INNER JOIN usersnew ON ch.profile_number = usersnew.profile_number
+                     WHERE ch.manual_review_requested_at IS NOT NULL
+                     ORDER BY ch.manual_review_requested_at DESC"
+                );
+                $view->manualReviewQueue = array();
+                while ($row = $manualReviewData->fetch_assoc()) {
+                    $row["playername"] = htmlspecialchars($row["playername"]);
+                    $row["chamberName"] = htmlspecialchars($row["chamberName"]);
+                    $view->manualReviewQueue[] = $row;
+                }
+
+                View::$pageData["pageTitle"] = "JAI Review Queue";
             }
         }
 

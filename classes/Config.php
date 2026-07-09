@@ -14,6 +14,8 @@ final class Config {
     public string $database_name;
     public string $steam_api_key;
     public string $autorender_api_token;
+    public string $openrouter_api_key = "";
+    public string $jai_reviewer_model = "nvidia/nemotron-3-super-120b-a12b:free";
 
     private static $_instance;
 

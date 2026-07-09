@@ -1,0 +1,88 @@
+<style>
+    #jaiqueue .queueSection { margin: 20px 0 40px; }
+    #jaiqueue .queueRow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(128,128,128,0.25);
+    }
+    #jaiqueue .queueAvatar img { border-radius: 20px; max-height: 35px; }
+    #jaiqueue .queueMain { flex: 1; min-width: 0; }
+    #jaiqueue .queueReasoning { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+    #jaiqueue .queueMeta { font-size: 12px; opacity: 0.6; }
+    #jaiqueue .queueActions { display: flex; gap: 8px; }
+    #jaiqueue .queueEmpty { opacity: 0.6; padding: 10px 0; }
+</style>
+
+<div id="jaiqueue">
+    <h1 class="largeTitle">JAI Review Queue</h1>
+
+    <div class="queueSection">
+        <h1 class="title">Accounts flagged for a ban decision</h1>
+        <?php if (empty($view->banReviewQueue)): ?>
+            <div class="queueEmpty">Nothing here right now.</div>
+        <?php else: ?>
+            <?php foreach ($view->banReviewQueue as $user): ?>
+                <div class="queueRow" id="banRow-<?=$user["profile_number"]?>">
+                    <div class="queueAvatar"><a href="/profile/<?=$user["profile_number"]?>"><img src="<?=$user["avatar"]?>" alt=""></a></div>
+                    <div class="queueMain">
+                        <a href="/profile/<?=$user["profile_number"]?>"><?=$user["playername"]?></a>
+                        <div class="queueReasoning"><?=htmlspecialchars($user["jai_ban_reasoning"] ?? "")?></div>
+                        <div class="queueMeta">Requested <?=$user["requestedAt"]?></div>
+                    </div>
+                    <div class="queueActions">
+                        <button class="evidenceButton admin banUserBtn" data-profile="<?=$user["profile_number"]?>">Ban account</button>
+                        <button class="evidenceButton small dismissBanReviewBtn" data-profile="<?=$user["profile_number"]?>">Dismiss</button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+
+    <div class="queueSection">
+        <h1 class="title">Manual reviews requested by run owners</h1>
+        <?php if (empty($view->manualReviewQueue)): ?>
+            <div class="queueEmpty">Nothing here right now.</div>
+        <?php else: ?>
+            <?php foreach ($view->manualReviewQueue as $run): ?>
+                <div class="queueRow" id="manualRow-<?=$run["id"]?>">
+                    <div class="queueMain">
+                        <a href="/evidence/<?=$run["id"]?>"><?=$run["playername"]?> &mdash; <?=$run["chamberName"]?> &mdash; <?=Leaderboard::convertToTime($run["score"])?></a>
+                        <div class="queueReasoning">JAI verdict: <?=htmlspecialchars($run["jai_verdict"])?><?php if ($run["jai_reasoning"]): ?> &mdash; <?=htmlspecialchars($run["jai_reasoning"])?><?php endif; ?></div>
+                        <div class="queueMeta">Requested <?=$run["requestedAt"]?></div>
+                    </div>
+                    <div class="queueActions">
+                        <button class="evidenceButton small resolveManualReviewBtn" data-id="<?=$run["id"]?>">Mark resolved</button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $(".banUserBtn").on("click", function() {
+            var profile = $(this).data("profile");
+            if (!confirm("Ban this account? This cannot be undone from here.")) return;
+            $.post("/setProfileBanStatus", { profileNumber: profile, banStatus: 1 }, function() {
+                $("#banRow-" + profile).fadeOut();
+            });
+        });
+
+        $(".dismissBanReviewBtn").on("click", function() {
+            var profile = $(this).data("profile");
+            $.post("/jaiClearBanReview", { profileNumber: profile }, function() {
+                $("#banRow-" + profile).fadeOut();
+            });
+        });
+
+        $(".resolveManualReviewBtn").on("click", function() {
+            var id = $(this).data("id");
+            $.post("/jaiResolveManualReview", { id: id }, function() {
+                $("#manualRow-" + id).fadeOut();
+            });
+        });
+    });
+</script>

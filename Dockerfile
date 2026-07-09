@@ -55,4 +55,4 @@ RUN echo '*/15 * * * * www-data flock -n /tmp/refreshCache.lock curl -Lk localho
 
 EXPOSE 80 443
 
-CMD service cron start && apachectl -D FOREGROUND
+CMD service cron start && (bash /var/www/html/util/jai_review_loop.sh &) && apachectl -D FOREGROUND

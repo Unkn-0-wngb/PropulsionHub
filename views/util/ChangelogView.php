@@ -111,7 +111,28 @@ class ChangelogView
                     <i class="fa fa-steam" aria-hidden="true" data-toggle="tooltip" title="Pulled from Steam automatically"></i>
                 <?php endif; ?>
             </div>
-            <?php if ($val["pending"] == 1): ?>
+            <?php $jaiActuallyReviewed = $val["jai_reviewed_at"] !== null; ?>
+            <?php if ($val["pending"] == 1 && !$jaiActuallyReviewed && $val["admin_reviewed_at"] === null): ?>
+            <div class="submission">
+                <a href="/evidence/<?=$val["id"]?>">
+                    <i class="fa fa-hourglass" aria-hidden="true" data-toggle="tooltip" title="Pending - evidence required. Click to view."></i>
+                </a>
+            </div>
+            <?php elseif ($jaiActuallyReviewed || $val["admin_reviewed_at"] !== null): ?>
+            <?php
+                $reviewLabel = array();
+                if ($jaiActuallyReviewed && $val["jai_verdict"] == "approved") $reviewLabel[] = "Approved by JAI";
+                else if ($jaiActuallyReviewed && $val["jai_verdict"] == "flagged") $reviewLabel[] = "Flagged by JAI";
+                else if ($jaiActuallyReviewed && $val["jai_verdict"] == "revoked") $reviewLabel[] = "Revoked by JAI";
+                if ($val["admin_reviewed_at"] !== null) $reviewLabel[] = "Reviewed by admin";
+                $reviewIcon = $val["admin_reviewed_at"] !== null ? "fa-user-circle-o" : "fa-android";
+            ?>
+            <div class="submission">
+                <a href="/evidence/<?=$val["id"]?>">
+                    <i class="fa <?=$reviewIcon?>" aria-hidden="true" data-toggle="tooltip" title="<?=htmlspecialchars(implode(", ", $reviewLabel))?>"></i>
+                </a>
+            </div>
+            <?php elseif ($val["pending"] == 1): ?>
             <div class="submission">
                 <a href="/evidence/<?=$val["id"]?>">
                     <i class="fa fa-hourglass" aria-hidden="true" data-toggle="tooltip" title="Pending - evidence required. Click to view."></i>

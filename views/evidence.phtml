@@ -10,13 +10,19 @@
             <?php
                 if ($change["banned"] == 1) {
                     $statusClass = "banned";
-                    $statusText = "Banned";
+                    $statusText = $change["jai_verdict"] == "revoked" ? "Revoked by JAI" : "Banned";
                 } else if ($change["admin_review_required"] == 1 && $change["pending"] == 1) {
                     $statusClass = "flagged";
-                    $statusText = "Flagged \xe2\x80\x94 admin review required";
+                    $statusText = $change["jai_verdict"] == "flagged" ? "Flagged by JAI" : "Flagged \xe2\x80\x94 admin review required";
+                } else if ($change["jai_verdict"] == "pending" && $change["pending"] == 1) {
+                    $statusClass = "pending";
+                    $statusText = "Awaiting JAI review";
                 } else if ($change["pending"] == 1) {
                     $statusClass = "pending";
                     $statusText = "Pending \xe2\x80\x94 evidence required";
+                } else if ($change["jai_verdict"] == "approved" && $change["jai_reviewed_at"] !== null) {
+                    $statusClass = "verified";
+                    $statusText = "Approved by JAI";
                 } else {
                     $statusClass = "verified";
                     $statusText = "Verified";
@@ -76,6 +82,11 @@
                         <button type="submit" class="evidenceButton">Save link</button>
                     </form>
                 </div>
+                <?php if ($change["manual_review_requested_at"] !== null): ?>
+                    <div class="evidenceMuted" style="margin-top: 10px;">Manual review requested &mdash; an admin will take a look.</div>
+                <?php elseif (in_array($change["jai_verdict"], ["flagged", "revoked"])): ?>
+                    <button id="evidenceRequestManualReview" class="evidenceButton small" style="margin-top: 10px;">Disagree with JAI? Request a manual review</button>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
@@ -84,11 +95,43 @@
         <h2 class="evidenceCardTitle">Verification</h2>
 
         <?php if ($change["banned"] == 1): ?>
-            <p class="evidenceMuted">This run is banned and cannot be verified.</p>
+            <p class="evidenceMuted">
+                <?php if ($change["jai_verdict"] == "revoked"): ?>
+                    This run was revoked by JAI<?php if ($change["jai_reasoning"]): ?>: <?=htmlspecialchars($change["jai_reasoning"])?><?php endif; ?>. This only hides the run &mdash; it does not ban the player's account.
+                <?php else: ?>
+                    This run is banned and cannot be verified.
+                <?php endif; ?>
+            </p>
+        <?php elseif ($change["jai_verdict"] == "pending" && $change["pending"] == 1): ?>
+            <p class="evidenceMuted"><i class="fa fa-clock-o" aria-hidden="true"></i> Waiting on JAI to review this run.</p>
+            <?php if ($view->isAdmin): ?>
+                <div class="evidenceActionRow">
+                    <button id="evidenceAdminVerify" class="evidenceButton admin">Verify run (admin)</button>
+                </div>
+            <?php endif; ?>
         <?php elseif ($change["pending"] != 1): ?>
-            <p class="evidenceVerifiedMsg"><i class="fa fa-check-circle" aria-hidden="true"></i> This run is verified.</p>
+            <p class="evidenceVerifiedMsg">
+                <i class="fa fa-check-circle" aria-hidden="true"></i> This run is verified.
+                <?php if ($change["jai_verdict"] == "approved" && $change["jai_reviewed_at"] !== null): ?>
+                    <i class="fa fa-android" aria-hidden="true" title="Approved by JAI"></i>
+                <?php endif; ?>
+                <?php if ($change["admin_reviewed_at"] !== null): ?>
+                    <i class="fa fa-user-circle-o" aria-hidden="true" title="Reviewed by admin"></i>
+                <?php endif; ?>
+                <?php if ($change["jai_verdict"] == "approved" && $change["jai_reviewed_at"] !== null && $change["jai_reasoning"]): ?>
+                    <br><span class="evidenceMuted"><?=htmlspecialchars($change["jai_reasoning"])?></span>
+                <?php endif; ?>
+            </p>
         <?php elseif ($change["admin_review_required"] == 1): ?>
-            <p class="evidenceFlaggedMsg"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This time was flagged as implausibly fast. Community voting is disabled &mdash; only an admin can verify or reject it.</p>
+            <p class="evidenceFlaggedMsg">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                <?php if ($change["jai_verdict"] == "flagged"): ?>
+                    JAI flagged this run<?php if ($change["jai_reasoning"]): ?>: <?=htmlspecialchars($change["jai_reasoning"])?><?php endif; ?>.
+                <?php else: ?>
+                    This time was flagged as implausibly fast.
+                <?php endif; ?>
+                Community voting is disabled &mdash; only an admin can verify or reject it.
+            </p>
             <div class="evidenceActionRow">
                 <?php if ($view->isAdmin): ?>
                     <button id="evidenceAdminVerify" class="evidenceButton admin">Verify run (admin)</button>
@@ -160,6 +203,19 @@
                     id: $form.find("[name=id]").val(),
                     youtubeID: $form.find("[name=youtubeID]").val()
                 },
+                type: "POST",
+                success: function() {
+                    window.location.reload();
+                }
+            });
+        });
+
+        $("#evidenceRequestManualReview").on("click", function() {
+            var $btn = $(this);
+            $btn.prop("disabled", true).text("Requesting...");
+            $.ajax({
+                url: "/requestManualReview",
+                data: { id: <?=$change["id"]?> },
                 type: "POST",
                 success: function() {
                     window.location.reload();

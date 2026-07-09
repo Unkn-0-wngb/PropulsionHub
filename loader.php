@@ -9,6 +9,7 @@ require_once(ROOT_PATH."/classes/Config.php");
 require_once(ROOT_PATH."/classes/DemoManager.php");
 require_once(ROOT_PATH."/classes/Cache.php");
 require_once(ROOT_PATH."/classes/Leaderboard.php");
+require_once(ROOT_PATH."/classes/JaiReviewer.php");
 require_once(ROOT_PATH."/classes/Forum.php");
 require_once(ROOT_PATH."/classes/SteamSignIn.php");
 require_once(ROOT_PATH."/classes/User.php");

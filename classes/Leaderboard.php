@@ -521,12 +521,9 @@ class Leaderboard
                 $pending = 1;
             }
 
-            $suspicious = $change["score"] < self::suspiciousScoreThreshold;
-            if ($suspicious) {
-                // Implausibly fast times always require admin sign-off, regardless
-                // of rank -- never just quietly clear the evidence-rank bar.
-                $pending = 1;
-            }
+            // Every new run stays held until JAI has actually reviewed it -- JAI is
+            // the main reviewer now, not just a check on already-suspicious times.
+            $pending = 1;
 
             Debug::log("Pending: ".$pending);
             Debug::log("Updating rank of new changelog entry. Player: ".$change["profileNumber"]." Map: ".$change["mapId"]." Score: ".$change["score"]." Rank: ".$postRank." Pending: ".$pending);
@@ -535,25 +532,17 @@ class Leaderboard
                 "UPDATE changelog
                  SET post_rank = ?
                    , pending = ?
-                   , admin_review_required = ?
                  WHERE id = ?",
-                "iiii",
+                "iii",
                 [
                     $postRank,
                     $pending,
-                    $suspicious ? 1 : 0,
                     $id,
                 ]
             );
 
-            if ($pending) {
-                Debug::log("Reseting resolved score back to previous value");
-                self::resolveScore(strval($change["profileNumber"]), strval($change["mapId"]));
-            }
-
-            if ($suspicious) {
-                self::flagSuspiciousScore(strval($change["profileNumber"]));
-            }
+            Debug::log("Reseting resolved score back to previous value");
+            self::resolveScore(strval($change["profileNumber"]), strval($change["mapId"]));
         }
 
         Debug::log("Finished saving changelog entries");
@@ -990,6 +979,11 @@ class Leaderboard
                   , ch.submission
                   , ch.pending
                   , ch.admin_review_required
+                  , ch.jai_verdict
+                  , ch.jai_reviewed_at
+                  , ch.jai_reasoning
+                  , ch.manual_review_requested_at
+                  , ch.admin_reviewed_at
                   , ch.autorender_id
                   , ch_previous.score as previous_score
                   , maps.name as chamberName
@@ -1608,7 +1602,6 @@ class Leaderboard
 
     const minPossibleScore = 1; // anything <= 0 is not a real elapsed time (int-underflow glitches etc.)
     const maxPossibleScore = 3600000; // 10 hours
-    const suspiciousScoreThreshold = 100; // 1 second -- below this is accepted but flagged for admin-only review
 
     public static function submitChange(
         string $profileNumber,
@@ -1624,8 +1617,6 @@ class Leaderboard
             Debug::log("Rejecting impossible submitted score: " . $score);
             return null;
         }
-
-        $suspicious = $score < self::suspiciousScoreThreshold;
 
         $maps = Cache::get("maps");
         $chapter = $maps["maps"][$chamber]["chapterId"];
@@ -1707,31 +1698,54 @@ class Leaderboard
             "UPDATE changelog
              SET post_rank = ?
                , pending = 1
-               , admin_review_required = ?
              WHERE id = ?",
-             "iii",
+             "ii",
              [
                 $postRank,
-                $suspicious ? 1 : 0,
                 $id,
             ]
         );
 
+        // Left pending, admin_review_required=0, jai_verdict='pending' (column default) --
+        // JAI is the main reviewer now and will pick this up in its background pass.
         self::resolveScore($profileNumber, $chamber);
         self::setYoutubeID($id, strval($youtubeID));
-
-        if ($suspicious) {
-            self::flagSuspiciousScore($profileNumber);
-        }
 
         return $id;
     }
 
-    // Warns a player the first time one of their runs is flagged as an
-    // implausible/suspicious time; bans their account outright (which already
-    // hides every past and future run of theirs, and lists them on the Wall
-    // of Shame -- both driven off usersnew.banned elsewhere) on any repeat.
-    public static function flagSuspiciousScore(string $profileNumber) {
+    // Runs pending=0 the same way admin manual verification and community-vote
+    // auto-verify already do -- JAI's "approve" verdict carries the same trust level.
+    public static function verifyRun(int $changelogId) {
+        Database::query(
+            "UPDATE changelog SET pending = 0 WHERE id = ?",
+            "i",
+            [$changelogId]
+        );
+
+        $change = self::getChange($changelogId);
+        if ($change) {
+            self::resolveScore(strval($change["profile_number"]), strval($change["mapid"]));
+        }
+    }
+
+    // Stamps a run as having had a human admin actually look at it -- distinct from
+    // JAI's jai_verdict, so the changelog/evidence UI can show both indicators.
+    public static function markAdminReviewed(int $changelogId, string $adminProfileNumber) {
+        Database::query(
+            "UPDATE changelog
+             SET admin_reviewed_at = NOW()
+               , admin_reviewed_by = ?
+             WHERE id = ?",
+            "si",
+            [$adminProfileNumber, $changelogId]
+        );
+    }
+
+    // JAI is only ever allowed to warn a player, never ban one directly -- on a
+    // repeat offense from an already-warned player it escalates to an admin
+    // ban-review request instead of banning itself (see requestAdminBanReview).
+    public static function jaiWarnPlayer(string $profileNumber) {
         $user = Database::findOne(
             "SELECT cheat_warning_at, banned FROM usersnew WHERE profile_number = ?",
             "s",
@@ -1743,20 +1757,68 @@ class Leaderboard
         }
 
         if ($user["cheat_warning_at"] === null) {
-            Debug::log("Issuing first cheat warning to profile: " . $profileNumber);
+            Debug::log("JAI issuing first cheat warning to profile: " . $profileNumber);
             Database::query(
                 "UPDATE usersnew SET cheat_warning_at = NOW() WHERE profile_number = ?",
                 "s",
                 [$profileNumber]
             );
         } else {
-            Debug::log("Repeat suspicious score from already-warned profile: " . $profileNumber . " -- banning");
-            Database::query(
-                "UPDATE usersnew SET banned = 1 WHERE profile_number = ?",
-                "s",
-                [$profileNumber]
-            );
+            self::requestAdminBanReview($profileNumber, "Repeat suspicious score from an already-warned profile.");
         }
+    }
+
+    // JAI cannot ban a user account -- this only surfaces the account to admins
+    // via jai_ban_review_requested_at; an admin must call setProfileBanStatus themselves.
+    public static function requestAdminBanReview(string $profileNumber, string $reasoning) {
+        Database::query(
+            "UPDATE usersnew
+             SET jai_ban_review_requested_at = NOW()
+               , jai_ban_reasoning = ?
+             WHERE profile_number = ?
+             AND banned = 0",
+            "ss",
+            [$reasoning, $profileNumber]
+        );
+    }
+
+    public static function requestManualReview(int $changelogId) {
+        Database::query(
+            "UPDATE changelog SET manual_review_requested_at = NOW() WHERE id = ?",
+            "i",
+            [$changelogId]
+        );
+    }
+
+    public static function resolveManualReview(int $changelogId) {
+        Database::query(
+            "UPDATE changelog SET manual_review_requested_at = NULL WHERE id = ?",
+            "i",
+            [$changelogId]
+        );
+    }
+
+    public static function clearBanReviewRequest(string $profileNumber) {
+        Database::query(
+            "UPDATE usersnew
+             SET jai_ban_review_requested_at = NULL
+               , jai_ban_reasoning = NULL
+             WHERE profile_number = ?",
+            "s",
+            [$profileNumber]
+        );
+    }
+
+    public static function setJaiVerdict(int $changelogId, string $verdict, string $reasoning) {
+        Database::query(
+            "UPDATE changelog
+             SET jai_verdict = ?
+               , jai_reasoning = ?
+               , jai_reviewed_at = NOW()
+             WHERE id = ?",
+            "ssi",
+            [$verdict, $reasoning, $changelogId]
+        );
     }
 
     public static function deleteSubmission(int $id) {
