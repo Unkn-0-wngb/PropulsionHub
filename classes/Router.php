@@ -635,6 +635,11 @@ class Router {
                 exit;
             }
 
+            if ($change["admin_review_required"] == 1) {
+                echo json_encode(["error" => "This run was flagged as an implausible time and can only be reviewed by an admin"]);
+                exit;
+            }
+
             Database::query(
                 "INSERT INTO score_votes (changelog_id, profile_number, vote)
                  VALUES (?, ?, ?)

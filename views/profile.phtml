@@ -122,6 +122,16 @@
             </div>
         <?php endif; ?>
 
+        <?php if ($user->userData->banned == 0 && $user->userData->cheat_warning_at != NULL && SteamSignIn::isLoggedIn($user->profileNumber)): ?>
+            <div class="cheatWarning">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                <span>
+                    One of your submitted times was flagged as an implausibly fast, likely-cheated run and required admin review.
+                    This is a warning &mdash; if this happens again, your account will be permanently banned, along with every run you've submitted, past and future.
+                </span>
+            </div>
+        <?php endif; ?>
+
         <?php if ($user->userData->banned == 1): ?>
             <div class="noactivity" style="float: none;">
                  <span class="noact-wrap">

@@ -282,13 +282,13 @@ class Leaderboard
                         foreach ($val2 as $d => $b) {
                             $steamid = $b->steamid;
                             $score = $b->score;
-                            // Steam's leaderboard occasionally contains glitched/exploited entries:
-                            // integer-underflow scores like -2147483648 or 0, but also small positive
-                            // values like 1-30 (0.01-0.30 seconds) that are physically impossible to
-                            // actually complete a chamber in. 100 (1 second) is a conservative floor --
-                            // safely below any real completion time, safely above the observed garbage.
-                            if (intval($score) < self::minPlausibleScore || intval($score) > self::maxPlausibleScore) {
-                                Debug::log("Skipping out-of-range score for map: " . $mapID . " steamid: " . $steamid . " score: " . $score);
+                            // Steam's leaderboard occasionally contains genuinely impossible entries
+                            // (integer-underflow scores like -2147483648, zero, or absurdly huge ones) --
+                            // those get dropped outright. Implausibly *fast* but non-impossible scores
+                            // (e.g. 0.01-0.99s) are still accepted here; saveScores() flags those for
+                            // mandatory admin review instead of silently discarding them.
+                            if (intval($score) < self::minPossibleScore || intval($score) > self::maxPossibleScore) {
+                                Debug::log("Skipping impossible score for map: " . $mapID . " steamid: " . $steamid . " score: " . $score);
                                 continue;
                             }
                             $leaderboard[$mapID][(string)$steamid] = (string)$score;
@@ -521,6 +521,13 @@ class Leaderboard
                 $pending = 1;
             }
 
+            $suspicious = $change["score"] < self::suspiciousScoreThreshold;
+            if ($suspicious) {
+                // Implausibly fast times always require admin sign-off, regardless
+                // of rank -- never just quietly clear the evidence-rank bar.
+                $pending = 1;
+            }
+
             Debug::log("Pending: ".$pending);
             Debug::log("Updating rank of new changelog entry. Player: ".$change["profileNumber"]." Map: ".$change["mapId"]." Score: ".$change["score"]." Rank: ".$postRank." Pending: ".$pending);
 
@@ -528,11 +535,13 @@ class Leaderboard
                 "UPDATE changelog
                  SET post_rank = ?
                    , pending = ?
+                   , admin_review_required = ?
                  WHERE id = ?",
-                "iii",
+                "iiii",
                 [
                     $postRank,
                     $pending,
+                    $suspicious ? 1 : 0,
                     $id,
                 ]
             );
@@ -540,6 +549,10 @@ class Leaderboard
             if ($pending) {
                 Debug::log("Reseting resolved score back to previous value");
                 self::resolveScore(strval($change["profileNumber"]), strval($change["mapId"]));
+            }
+
+            if ($suspicious) {
+                self::flagSuspiciousScore(strval($change["profileNumber"]));
             }
         }
 
@@ -976,6 +989,7 @@ class Leaderboard
                   , ch.banned
                   , ch.submission
                   , ch.pending
+                  , ch.admin_review_required
                   , ch.autorender_id
                   , ch_previous.score as previous_score
                   , maps.name as chamberName
@@ -1592,8 +1606,9 @@ class Leaderboard
         self::refreshChamberCache($mapId);
     }
 
-    const minPlausibleScore = 100; // 1 second -- see the matching check in getNewScores()
-    const maxPlausibleScore = 3600000; // 10 hours
+    const minPossibleScore = 1; // anything <= 0 is not a real elapsed time (int-underflow glitches etc.)
+    const maxPossibleScore = 3600000; // 10 hours
+    const suspiciousScoreThreshold = 100; // 1 second -- below this is accepted but flagged for admin-only review
 
     public static function submitChange(
         string $profileNumber,
@@ -1605,10 +1620,12 @@ class Leaderboard
     {
         Debug::log("Starting Submit Change");
 
-        if ($score < self::minPlausibleScore || $score > self::maxPlausibleScore) {
-            Debug::log("Rejecting implausible submitted score: " . $score);
+        if ($score < self::minPossibleScore || $score > self::maxPossibleScore) {
+            Debug::log("Rejecting impossible submitted score: " . $score);
             return null;
         }
+
+        $suspicious = $score < self::suspiciousScoreThreshold;
 
         $maps = Cache::get("maps");
         $chapter = $maps["maps"][$chamber]["chapterId"];
@@ -1690,10 +1707,12 @@ class Leaderboard
             "UPDATE changelog
              SET post_rank = ?
                , pending = 1
+               , admin_review_required = ?
              WHERE id = ?",
-             "ii",
+             "iii",
              [
                 $postRank,
+                $suspicious ? 1 : 0,
                 $id,
             ]
         );
@@ -1701,7 +1720,43 @@ class Leaderboard
         self::resolveScore($profileNumber, $chamber);
         self::setYoutubeID($id, strval($youtubeID));
 
+        if ($suspicious) {
+            self::flagSuspiciousScore($profileNumber);
+        }
+
         return $id;
+    }
+
+    // Warns a player the first time one of their runs is flagged as an
+    // implausible/suspicious time; bans their account outright (which already
+    // hides every past and future run of theirs, and lists them on the Wall
+    // of Shame -- both driven off usersnew.banned elsewhere) on any repeat.
+    public static function flagSuspiciousScore(string $profileNumber) {
+        $user = Database::findOne(
+            "SELECT cheat_warning_at, banned FROM usersnew WHERE profile_number = ?",
+            "s",
+            [$profileNumber]
+        );
+
+        if (!$user || $user["banned"] == 1) {
+            return;
+        }
+
+        if ($user["cheat_warning_at"] === null) {
+            Debug::log("Issuing first cheat warning to profile: " . $profileNumber);
+            Database::query(
+                "UPDATE usersnew SET cheat_warning_at = NOW() WHERE profile_number = ?",
+                "s",
+                [$profileNumber]
+            );
+        } else {
+            Debug::log("Repeat suspicious score from already-warned profile: " . $profileNumber . " -- banning");
+            Database::query(
+                "UPDATE usersnew SET banned = 1 WHERE profile_number = ?",
+                "s",
+                [$profileNumber]
+            );
+        }
     }
 
     public static function deleteSubmission(int $id) {

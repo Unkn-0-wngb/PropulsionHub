@@ -1,0 +1,2 @@
+ALTER TABLE changelog ADD COLUMN admin_review_required TINYINT(1) NOT NULL DEFAULT 0;
+ALTER TABLE usersnew ADD COLUMN cheat_warning_at TIMESTAMP NULL DEFAULT NULL;

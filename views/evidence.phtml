@@ -11,6 +11,9 @@
                 if ($change["banned"] == 1) {
                     $statusClass = "banned";
                     $statusText = "Banned";
+                } else if ($change["admin_review_required"] == 1 && $change["pending"] == 1) {
+                    $statusClass = "flagged";
+                    $statusText = "Flagged \xe2\x80\x94 admin review required";
                 } else if ($change["pending"] == 1) {
                     $statusClass = "pending";
                     $statusText = "Pending \xe2\x80\x94 evidence required";
@@ -84,6 +87,15 @@
             <p class="evidenceMuted">This run is banned and cannot be verified.</p>
         <?php elseif ($change["pending"] != 1): ?>
             <p class="evidenceVerifiedMsg"><i class="fa fa-check-circle" aria-hidden="true"></i> This run is verified.</p>
+        <?php elseif ($change["admin_review_required"] == 1): ?>
+            <p class="evidenceFlaggedMsg"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This time was flagged as implausibly fast. Community voting is disabled &mdash; only an admin can verify or reject it.</p>
+            <div class="evidenceActionRow">
+                <?php if ($view->isAdmin): ?>
+                    <button id="evidenceAdminVerify" class="evidenceButton admin">Verify run (admin)</button>
+                <?php else: ?>
+                    <span class="evidenceMuted">Waiting on admin review.</span>
+                <?php endif; ?>
+            </div>
         <?php else: ?>
             <?php
                 $valid = $view->voteTally["valid"];

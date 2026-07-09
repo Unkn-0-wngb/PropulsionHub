@@ -1594,6 +1594,19 @@ html[class="dark"] #profile .usericons .fa-play:hover {
 #profile .uploadInfo {
     background: #226D99;
 }
+#profile .cheatWarning {
+    background: #c0392b;
+    color: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 12px 16px;
+    margin-bottom: 4px;
+}
+#profile .cheatWarning i {
+    margin-right: 8px;
+}
 #profile .uploadInfo a, #profile .YoutubeUploadInfo a {
     font-weight: bold;
     color: #FFF;
@@ -2411,6 +2424,10 @@ html[class="dark"] code {
     background: #fbdede;
     color: #a31c1c;
 }
+#evidence .evidenceStatusBadge.flagged {
+    background: #fde3e3;
+    color: #b33a1c;
+}
 #evidence .evidenceChamberName {
     font-family: "Aperture", 'Inter', sans-serif;
     font-size: 26px;
@@ -2486,6 +2503,21 @@ html[class="dark"] code {
 }
 #evidence .evidenceVerifiedMsg i {
     margin-right: 6px;
+}
+#evidence .evidenceFlaggedMsg {
+    color: #b33a1c;
+    font-weight: 600;
+    background: #fdf1ee;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 0;
+}
+#evidence .evidenceFlaggedMsg i {
+    margin-right: 6px;
+}
+html[class="dark"] #evidence .evidenceFlaggedMsg {
+    background: #331810;
+    color: #f0906e;
 }
 
 /* Evidence slots */
@@ -2687,6 +2719,10 @@ html[class="dark"] #evidence .evidenceStatusBadge.verified {
 html[class="dark"] #evidence .evidenceStatusBadge.banned {
     background: #3a1414;
     color: #f38a8a;
+}
+html[class="dark"] #evidence .evidenceStatusBadge.flagged {
+    background: #331810;
+    color: #f0906e;
 }
 
 @media (max-width: 620px) {
