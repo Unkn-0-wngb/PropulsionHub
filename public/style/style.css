@@ -2355,55 +2355,348 @@ html[class="dark"] code {
 /*EVIDENCE*/
 
 #evidence {
-    font-family: Segoe UI;
-    margin: 30px 0px 0px 42px;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    max-width: 760px;
+    margin: 30px auto 60px;
+    padding: 0 20px;
 }
-#evidence .largeTitle {
-    font-family: "Aperture";
-    font-size: 40px;
-    color: #3e88b3;
-    text-transform: uppercase;
+
+/* Hero */
+#evidence .evidenceHero {
+    display: flex;
+    gap: 20px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
 }
-#evidence .container {
-    margin-bottom: 30px;
-    font-size: 16px;
-    color: #444;
-    width: calc(100% - 45px);
-    padding-left: 0px;
-    margin-left: 0px;
+#evidence .evidenceThumb {
+    flex: 0 0 160px;
+    width: 160px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #e2e2e2;
 }
-#evidence .container h2 {
-    font-size: 16px;
-    margin-bottom: 5px;
+#evidence .evidenceThumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
-#evidence .container form {
-    margin-bottom: 15px;
+#evidence .evidenceHeroInfo {
+    flex: 1;
+    min-width: 0;
 }
-#evidence .button {
+#evidence .evidenceStatusBadge {
     display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 8px;
+}
+#evidence .evidenceStatusBadge.pending {
+    background: #fdf0dc;
+    color: #a15c00;
+}
+#evidence .evidenceStatusBadge.verified {
+    background: #dff3e3;
+    color: #1e7a34;
+}
+#evidence .evidenceStatusBadge.banned {
+    background: #fbdede;
+    color: #a31c1c;
+}
+#evidence .evidenceChamberName {
+    font-family: "Aperture", 'Inter', sans-serif;
+    font-size: 26px;
+    color: #c96a00;
+    text-transform: uppercase;
+    margin: 0 0 2px;
+    line-height: 1.15;
+}
+#evidence .evidenceChamberName a {
+    color: inherit;
+}
+#evidence .evidenceChapterName {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 14px;
+}
+#evidence .evidenceChapterName a {
+    color: inherit;
+}
+#evidence .evidencePlayerRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+#evidence .evidencePlayerLink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+}
+#evidence .evidencePlayerLink:hover {
+    text-decoration: underline;
+}
+#evidence .evidenceAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+}
+#evidence .evidenceScore {
+    font-family: "Aperture", 'Inter', sans-serif;
+    font-size: 22px;
+    color: #3e88b3;
+}
+
+/* Cards */
+#evidence .evidenceCard {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+#evidence .evidenceCardTitle {
+    font-family: "Aperture", 'Inter', sans-serif;
+    font-size: 15px;
+    color: #c96a00;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f7931e;
+}
+#evidence .evidenceMuted {
+    color: #888;
+    font-size: 14px;
+}
+#evidence .evidenceVerifiedMsg {
+    color: #1e7a34;
+    font-weight: 600;
+}
+#evidence .evidenceVerifiedMsg i {
+    margin-right: 6px;
+}
+
+/* Evidence slots */
+#evidence .evidenceSlots {
+    display: flex;
+    gap: 14px;
+}
+#evidence .evidenceSlot {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 20px 14px;
+    border-radius: 8px;
+    border: 1.5px dashed #d5d5d5;
+    color: #999;
+}
+#evidence .evidenceSlot.filled {
+    border-style: solid;
+    border-color: #cfead6;
+    background: #f4fbf6;
+    color: #333;
+}
+#evidence .evidenceSlotIcon {
+    font-size: 26px;
+    color: #c2c2c2;
+}
+#evidence .evidenceSlot.filled .evidenceSlotIcon {
+    color: #2f9e4f;
+}
+#evidence .evidenceSlotLabel {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Buttons */
+#evidence .evidenceButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: #f7931e;
     color: #fff;
     border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: bold;
+    border-radius: 6px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
-    margin-right: 10px;
+    text-decoration: none;
+    transition: opacity 0.15s;
 }
-#evidence .button:hover {
-    opacity: 0.9;
+#evidence .evidenceButton:hover {
+    opacity: 0.88;
+    text-decoration: none;
 }
-#evidence .button.active {
-    box-shadow: 0 0 0 2px #3e88b3 inset;
+#evidence .evidenceButton:disabled {
+    opacity: 0.6;
+    cursor: default;
 }
-#evidence #evidenceVoteInvalid {
+#evidence .evidenceButton.small {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+#evidence .evidenceButton.admin {
+    background: #3e88b3;
+}
+#evidence .evidenceButton.valid {
+    background: #2f9e4f;
+}
+#evidence .evidenceButton.invalid {
     background: #888;
 }
-html[class="dark"] #evidence .container, html[class="dark"] #evidence td {
+#evidence .evidenceButton.active {
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.35) inset;
+}
+#evidence .evidenceActionRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+/* Owner upload tools */
+#evidence .evidenceOwnerTools {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+#evidence .evidenceOwnerHint {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 10px;
+}
+#evidence .evidenceUploadRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+#evidence .evidenceInlineForm {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f7f7f7;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+#evidence .evidenceFileLabel {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+}
+#evidence .evidenceFileLabel input {
+    max-width: 150px;
+    font-size: 12px;
+}
+#evidence .evidenceTextInput {
+    height: 32px;
+    border: 1px solid #d5d5d5;
+    border-radius: 5px;
+    padding: 0 8px;
+    font-size: 13px;
+    width: 220px;
+}
+
+/* Vote bar */
+#evidence .evidenceVoteBar {
+    height: 10px;
+    border-radius: 100px;
+    background: #eee;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+#evidence .evidenceVoteBarFill {
+    height: 100%;
+    background: linear-gradient(90deg, #f7931e, #2f9e4f);
+    border-radius: 100px;
+    transition: width 0.25s ease;
+}
+#evidence .evidenceVoteTally {
+    font-size: 13px;
+    color: #777;
+    margin: 0;
+}
+
+/* Dark mode */
+html[class="dark"] #evidence .evidenceHero,
+html[class="dark"] #evidence .evidenceCard {
+    background: #1a1a1e;
+    box-shadow: none;
+    border: 1px solid #2a2a2f;
+}
+html[class="dark"] #evidence .evidenceChapterName,
+html[class="dark"] #evidence .evidenceMuted,
+html[class="dark"] #evidence .evidenceVoteTally,
+html[class="dark"] #evidence .evidenceOwnerHint {
+    color: #9a9a9f;
+}
+html[class="dark"] #evidence .evidencePlayerLink {
+    color: #eee;
+}
+html[class="dark"] #evidence .evidenceSlot {
+    border-color: #34343a;
+    color: #8a8a8f;
+}
+html[class="dark"] #evidence .evidenceSlot.filled {
+    background: #13251a;
+    border-color: #245134;
+    color: #ddd;
+}
+html[class="dark"] #evidence .evidenceInlineForm {
+    background: #232328;
+}
+html[class="dark"] #evidence .evidenceFileLabel {
+    color: #ccc;
+}
+html[class="dark"] #evidence .evidenceTextInput {
+    background: #1a1a1e;
+    border-color: #34343a;
     color: #fff;
 }
-html[class="dark"] #evidence a {
-    color: #fff;
-    font-weight: bold;
+html[class="dark"] #evidence .evidenceOwnerTools {
+    border-top-color: #2a2a2f;
+}
+html[class="dark"] #evidence .evidenceVoteBar {
+    background: #2a2a2f;
+}
+html[class="dark"] #evidence .evidenceStatusBadge.pending {
+    background: #3a2a10;
+    color: #f3b862;
+}
+html[class="dark"] #evidence .evidenceStatusBadge.verified {
+    background: #123420;
+    color: #6fd08a;
+}
+html[class="dark"] #evidence .evidenceStatusBadge.banned {
+    background: #3a1414;
+    color: #f38a8a;
+}
+
+@media (max-width: 620px) {
+    #evidence .evidenceHero {
+        flex-direction: column;
+    }
+    #evidence .evidenceThumb {
+        width: 100%;
+    }
+    #evidence .evidenceSlots {
+        flex-direction: column;
+    }
 }

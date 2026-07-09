@@ -1,90 +1,119 @@
 <?php $change = $view->evidenceChange; ?>
 
 <div id="evidence">
-    <h1 class="largeTitle">Evidence</h1>
 
-    <div class="container">
-        <p>
-            <a href="/profile/<?=$change["profile_number"]?>"><?=$change["player_name"]?></a>
-            on <a href="/chamber/<?=$change["mapid"]?>"><?=$change["chamberName"]?></a>
-            (<a href="/aggregated/chapter/<?=$change["chapterId"]?>"><?=$GLOBALS["mapInfo"]["chapters"][$change["chapterId"]]["chapterName"]?></a>)
-            &mdash; <?=Leaderboard::convertToTime($change["score"])?>
-        </p>
-        <p id="evidenceStatus">
-            <?php if ($change["banned"] == 1): ?>
-                Status: <strong>Banned</strong>
-            <?php elseif ($change["pending"] == 1): ?>
-                Status: <strong>Pending &mdash; evidence required</strong>
-            <?php else: ?>
-                Status: <strong>Verified</strong>
-            <?php endif; ?>
-        </p>
+    <div class="evidenceHero">
+        <div class="evidenceThumb">
+            <img src="/images/thumbnails/<?=$change["mapid"]?>.jpg" alt="" onerror="this.style.display='none'">
+        </div>
+        <div class="evidenceHeroInfo">
+            <?php
+                if ($change["banned"] == 1) {
+                    $statusClass = "banned";
+                    $statusText = "Banned";
+                } else if ($change["pending"] == 1) {
+                    $statusClass = "pending";
+                    $statusText = "Pending \xe2\x80\x94 evidence required";
+                } else {
+                    $statusClass = "verified";
+                    $statusText = "Verified";
+                }
+            ?>
+            <span class="evidenceStatusBadge <?=$statusClass?>" id="evidenceStatusBadge"><?=$statusText?></span>
+            <h1 class="evidenceChamberName"><a href="/chamber/<?=$change["mapid"]?>"><?=$change["chamberName"]?></a></h1>
+            <div class="evidenceChapterName"><a href="/aggregated/chapter/<?=$change["chapterId"]?>"><?=$GLOBALS["mapInfo"]["chapters"][$change["chapterId"]]["chapterName"]?></a></div>
+            <div class="evidencePlayerRow">
+                <a href="/profile/<?=$change["profile_number"]?>" class="evidencePlayerLink">
+                    <img class="evidenceAvatar" src="<?=$change["avatar"]?>" alt="">
+                    <span><?=$change["player_name"]?></span>
+                </a>
+                <span class="evidenceScore"><?=Leaderboard::convertToTime($change["score"])?></span>
+            </div>
+        </div>
     </div>
 
-    <h1 class="title">Submitted evidence</h1>
-    <div class="container">
-        <p id="evidenceDemoLink">
-            <?php if ($change["hasDemo"] == 1): ?>
-                Demo: <a href="/getDemo?id=<?=$change["id"]?>">Download .dem</a>
-            <?php else: ?>
-                No demo file has been provided for this run.
-            <?php endif; ?>
-        </p>
-        <p id="evidenceYoutubeLink">
-            <?php if ($change["youtubeID"] != NULL): ?>
-                YouTube: <a href="#" onclick="embedOnBody('<?=$change["youtubeID"]?>', '<?=$change["chamberName"]?> - <?=Leaderboard::convertToTime($change["score"])?> - <?=Util::escapeQuotesHTML($change["player_name"])?>'); return false;">Watch</a>
-            <?php else: ?>
-                No YouTube link has been provided for this run.
-            <?php endif; ?>
-        </p>
+    <div class="evidenceCard">
+        <h2 class="evidenceCardTitle">Submitted evidence</h2>
+        <div class="evidenceSlots">
+            <div class="evidenceSlot <?php if ($change["hasDemo"] == 1): ?>filled<?php endif; ?>" id="evidenceDemoSlot">
+                <i class="fa fa-file-archive-o evidenceSlotIcon" aria-hidden="true"></i>
+                <?php if ($change["hasDemo"] == 1): ?>
+                    <div class="evidenceSlotLabel">Demo file</div>
+                    <a href="/getDemo?id=<?=$change["id"]?>" class="evidenceButton small">Download .dem</a>
+                <?php else: ?>
+                    <div class="evidenceSlotLabel">No demo provided</div>
+                <?php endif; ?>
+            </div>
+            <div class="evidenceSlot <?php if ($change["youtubeID"] != NULL): ?>filled<?php endif; ?>" id="evidenceYoutubeSlot">
+                <i class="fa fa-youtube-play evidenceSlotIcon" aria-hidden="true"></i>
+                <?php if ($change["youtubeID"] != NULL): ?>
+                    <div class="evidenceSlotLabel">YouTube video</div>
+                    <a href="#" class="evidenceButton small" onclick="embedOnBody('<?=$change["youtubeID"]?>', '<?=$change["chamberName"]?> - <?=Leaderboard::convertToTime($change["score"])?> - <?=Util::escapeQuotesHTML($change["player_name"])?>'); return false;">Watch</a>
+                <?php else: ?>
+                    <div class="evidenceSlotLabel">No YouTube link provided</div>
+                <?php endif; ?>
+            </div>
+        </div>
 
         <?php if ($view->isOwner): ?>
-            <h2>Add evidence</h2>
-            <p>This is your run &mdash; you can attach a demo file and/or a YouTube link below.</p>
-
-            <form id="evidenceDemoForm">
-                <input type="hidden" name="id" value="<?=$change["id"]?>">
-                <input type="file" name="demoFile" accept=".dem">
-                <input type="submit" value="Upload demo" class="button">
-            </form>
-
-            <form id="evidenceYoutubeForm">
-                <input type="hidden" name="id" value="<?=$change["id"]?>">
-                <input type="text" name="youtubeID" placeholder="YouTube video ID or URL">
-                <input type="submit" value="Save YouTube link" class="button">
-            </form>
+            <div class="evidenceOwnerTools">
+                <div class="evidenceOwnerHint">This is your run &mdash; add evidence below.</div>
+                <div class="evidenceUploadRow">
+                    <form id="evidenceDemoForm" class="evidenceInlineForm">
+                        <input type="hidden" name="id" value="<?=$change["id"]?>">
+                        <label class="evidenceFileLabel">
+                            <input type="file" name="demoFile" accept=".dem">
+                            <span>Choose .dem file</span>
+                        </label>
+                        <button type="submit" class="evidenceButton">Upload demo</button>
+                    </form>
+                    <form id="evidenceYoutubeForm" class="evidenceInlineForm">
+                        <input type="hidden" name="id" value="<?=$change["id"]?>">
+                        <input type="text" name="youtubeID" placeholder="YouTube video ID or URL" class="evidenceTextInput">
+                        <button type="submit" class="evidenceButton">Save link</button>
+                    </form>
+                </div>
+            </div>
         <?php endif; ?>
     </div>
 
-    <h1 class="title">Verification</h1>
-    <div class="container">
-        <?php if ($change["banned"] == 1): ?>
-            <p>This run is banned and cannot be verified.</p>
-        <?php elseif ($change["pending"] != 1): ?>
-            <p>This run is already verified.</p>
-        <?php else: ?>
-            <?php if ($view->isAdmin): ?>
-                <p>
-                    <button id="evidenceAdminVerify" class="button">Verify run (admin)</button>
-                </p>
-            <?php endif; ?>
+    <div class="evidenceCard">
+        <h2 class="evidenceCardTitle">Verification</h2>
 
-            <p id="evidenceVoteTally">
-                <span id="evidenceValidCount"><?=$view->voteTally["valid"]?></span> valid /
-                <span id="evidenceInvalidCount"><?=$view->voteTally["invalid"]?></span> not valid
-                &mdash; needs at least <?=$view->voteThreshold?> valid votes, and at least <?=$view->voteThreshold?>&times; as many valid votes as not-valid votes, to auto-verify.
+        <?php if ($change["banned"] == 1): ?>
+            <p class="evidenceMuted">This run is banned and cannot be verified.</p>
+        <?php elseif ($change["pending"] != 1): ?>
+            <p class="evidenceVerifiedMsg"><i class="fa fa-check-circle" aria-hidden="true"></i> This run is verified.</p>
+        <?php else: ?>
+            <?php
+                $valid = $view->voteTally["valid"];
+                $invalid = $view->voteTally["invalid"];
+                $needed = max($view->voteThreshold, $view->voteThreshold * $invalid);
+                $progress = $needed > 0 ? min(100, round(($valid / $needed) * 100)) : 0;
+            ?>
+            <div class="evidenceVoteBar">
+                <div class="evidenceVoteBarFill" id="evidenceVoteBarFill" style="width: <?=$progress?>%"></div>
+            </div>
+            <p class="evidenceVoteTally">
+                <span id="evidenceValidCount"><?=$valid?></span> valid /
+                <span id="evidenceInvalidCount"><?=$invalid?></span> not valid
+                &mdash; needs <?=$view->voteThreshold?>+ valid votes (and at least <?=$view->voteThreshold?>&times; as many valid as not-valid) to auto-verify.
             </p>
 
-            <?php if (!isset(SteamSignIn::$loggedInUser)): ?>
-                <p><a href="/login">Sign in through Steam</a> to vote on this run.</p>
-            <?php elseif ($view->isOwner): ?>
-                <p>You cannot vote on your own run.</p>
-            <?php else: ?>
-                <p>
-                    <button id="evidenceVoteValid" class="button<?php if ($view->userVote === 1): ?> active<?php endif; ?>" data-vote="1">Vote Valid</button>
-                    <button id="evidenceVoteInvalid" class="button<?php if ($view->userVote === 0): ?> active<?php endif; ?>" data-vote="0">Vote Not Valid</button>
-                </p>
-            <?php endif; ?>
+            <div class="evidenceActionRow">
+                <?php if ($view->isAdmin): ?>
+                    <button id="evidenceAdminVerify" class="evidenceButton admin">Verify run (admin)</button>
+                <?php endif; ?>
+
+                <?php if (!isset(SteamSignIn::$loggedInUser)): ?>
+                    <a href="/login" class="evidenceButton">Sign in through Steam to vote</a>
+                <?php elseif ($view->isOwner): ?>
+                    <span class="evidenceMuted">You cannot vote on your own run.</span>
+                <?php else: ?>
+                    <button id="evidenceVoteValid" class="evidenceButton valid<?php if ($view->userVote === 1): ?> active<?php endif; ?>" data-vote="1"><i class="fa fa-check" aria-hidden="true"></i> Valid</button>
+                    <button id="evidenceVoteInvalid" class="evidenceButton invalid<?php if ($view->userVote === 0): ?> active<?php endif; ?>" data-vote="0"><i class="fa fa-times" aria-hidden="true"></i> Not valid</button>
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
     </div>
 </div>
@@ -93,6 +122,8 @@
     $(document).ready(function() {
         $("#evidenceDemoForm").on("submit", function(event) {
             event.preventDefault();
+            var $btn = $(this).find("button");
+            $btn.prop("disabled", true).text("Uploading...");
             $.ajax({
                 url: "/uploadDemo",
                 data: new FormData(this),
@@ -109,6 +140,8 @@
         $("#evidenceYoutubeForm").on("submit", function(event) {
             event.preventDefault();
             var $form = $(this);
+            var $btn = $form.find("button");
+            $btn.prop("disabled", true).text("Saving...");
             $.ajax({
                 url: "/setYoutubeID",
                 data: {
@@ -123,6 +156,8 @@
         });
 
         $("#evidenceAdminVerify").on("click", function() {
+            var $btn = $(this);
+            $btn.prop("disabled", true).text("Verifying...");
             $.ajax({
                 url: "/verifyScore",
                 data: { id: <?=$change["id"]?> },
@@ -135,12 +170,14 @@
 
         $("#evidenceVoteValid, #evidenceVoteInvalid").on("click", function() {
             var $button = $(this);
+            $("#evidenceVoteValid, #evidenceVoteInvalid").prop("disabled", true);
             $.ajax({
                 url: "/voteScore",
                 data: { id: <?=$change["id"]?>, vote: $button.data("vote") },
                 type: "POST",
                 dataType: "json",
                 success: function(data) {
+                    $("#evidenceVoteValid, #evidenceVoteInvalid").prop("disabled", false);
                     if (data.error) {
                         alert(data.error);
                         return;
@@ -153,6 +190,13 @@
                     $("#evidenceInvalidCount").text(data.tally.invalid);
                     $("#evidenceVoteValid, #evidenceVoteInvalid").removeClass("active");
                     $button.addClass("active");
+
+                    var needed = Math.max(<?=$view->voteThreshold?>, <?=$view->voteThreshold?> * data.tally.invalid);
+                    var progress = needed > 0 ? Math.min(100, Math.round((data.tally.valid / needed) * 100)) : 0;
+                    $("#evidenceVoteBarFill").css("width", progress + "%");
+                },
+                error: function() {
+                    $("#evidenceVoteValid, #evidenceVoteInvalid").prop("disabled", false);
                 }
             });
         });

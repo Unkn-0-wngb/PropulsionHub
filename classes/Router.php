@@ -851,7 +851,7 @@ class Router {
                     $this->routeTo404();
                 } else {
                     $view->evidenceChange = $change;
-                    $view->isOwner = isset(SteamSignIn::$loggedInUser) && SteamSignIn::hasProfilePrivileges($change["profile_number"]);
+                    $view->isOwner = isset(SteamSignIn::$loggedInUser) && SteamSignIn::isLoggedIn($change["profile_number"]);
                     $view->isAdmin = SteamSignIn::loggedInUserIsAdmin();
                     $view->voteTally = Leaderboard::getVoteTally($change["id"]);
                     $view->userVote = isset(SteamSignIn::$loggedInUser)
